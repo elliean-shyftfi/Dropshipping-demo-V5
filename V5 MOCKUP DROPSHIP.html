@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mockup – Consolidate SO into RFQ</title>
+<style>
+:root{
+  --bg:#f3f4f7; --surface:#ffffff; --surface-2:#f6f7f9; --text:#1f2430; --muted:#6b7280; --border:#dfe2e8;
+  --primary:#71639e; --primary-ink:#ffffff; --primary-soft:#ece9f5; --header:#71639e; --header-ink:#ffffff; --neutral:#d0402f;
+  --ok:#1f8a4c; --ok-soft:#dcf2e4; --warn:#9a6700; --warn-soft:#fff3cd; --danger:#c0392b; --danger-soft:#fbe3e0; --info-soft:#e3eefc; --info:#1d5fae;
+  --t1-bg:#fde3cf; --t1:#b4570b; --t2-bg:#e4dcf2; --t2:#5b4a8f; --t3-bg:#d3eef1; --t3:#1b7480;
+  --sel:#efecf7;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#181a21; --surface:#22252e; --surface-2:#2a2e38; --text:#e6e8ee; --muted:#9aa1ad; --border:#383d49;
+    --primary:#9a8cd0; --primary-ink:#15131d; --primary-soft:#322d47; --header:#3b3456; --header-ink:#f1eefb; --neutral:#8e2a20;
+    --ok:#5cc98a; --ok-soft:#1d3a2a; --warn:#e8b949; --warn-soft:#3b3115; --danger:#f08273; --danger-soft:#43221e; --info-soft:#1d2d44; --info:#8ab8f2;
+    --t1-bg:#43301f; --t1:#f2a865; --t2-bg:#332b47; --t2:#bfb0ee; --t3-bg:#173a3e; --t3:#7fd2dc;
+    --sel:#2d2840;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#181a21; --surface:#22252e; --surface-2:#2a2e38; --text:#e6e8ee; --muted:#9aa1ad; --border:#383d49;
+  --primary:#9a8cd0; --primary-ink:#15131d; --primary-soft:#322d47; --header:#3b3456; --header-ink:#f1eefb; --neutral:#8e2a20;
+  --ok:#5cc98a; --ok-soft:#1d3a2a; --warn:#e8b949; --warn-soft:#3b3115; --danger:#f08273; --danger-soft:#43221e; --info-soft:#1d2d44; --info:#8ab8f2;
+  --t1-bg:#43301f; --t1:#f2a865; --t2-bg:#332b47; --t2:#bfb0ee; --t3-bg:#173a3e; --t3:#7fd2dc;
+  --sel:#2d2840;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--neutral)}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+input[type=checkbox]{width:16px;height:16px;accent-color:var(--primary);margin:0;vertical-align:middle;cursor:pointer}
+input[type=checkbox]:disabled{cursor:default}
+
+/* chrome */
+.chrome{position:sticky;top:env(safe-area-inset-top,0px);z-index:30}
+.neutral{background:var(--neutral);color:#fff;text-align:center;font-size:15px;padding:4px 8px}
+.topbar{background:var(--header);color:var(--header-ink);display:flex;align-items:center;gap:4px;padding:0 12px;height:48px}
+.topbar .appsbtn{background:none;border:0;color:var(--header-ink);padding:8px;cursor:pointer;display:flex;border-radius:4px}
+.topbar .appsbtn:hover,.topbar nav button:hover{background:rgba(255,255,255,.1)}
+.topbar .appname{font-size:18px;margin:0 10px 0 4px;white-space:nowrap}
+.topbar nav{display:flex;overflow-x:auto}
+.topbar nav button{background:none;border:0;color:var(--header-ink);padding:13px 10px;cursor:pointer;white-space:nowrap;font-size:15px;opacity:.95}
+.topbar .spacer{flex:1}
+.topbar .sys{display:flex;align-items:center;gap:14px;font-size:14px;white-space:nowrap}
+.topbar .sys svg{width:18px;height:18px}
+.avatar{width:30px;height:30px;border-radius:4px;background:#7cb342;color:#fff;display:grid;place-items:center;font-weight:600}
+@media (max-width:700px){.topbar nav,.topbar .sys .hide-sm{display:none}}
+.dropdown{position:relative}
+.menu{position:absolute;top:calc(100% + 4px);left:0;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,.18);min-width:240px;padding:4px 0;z-index:40}
+.menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;padding:7px 16px;cursor:pointer;white-space:nowrap}
+.menu button:hover{background:var(--surface-2)}
+.menu hr{border:0;border-top:1px solid var(--border);margin:4px 0}
+.menu .app-ico{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+
+/* control panel */
+.cp{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+@media (max-width:820px){.cp{grid-template-columns:1fr}.cp-right{justify-self:start}}
+.cp-left{display:flex;align-items:center;gap:10px;min-width:0}
+.cp-title{font-size:18px}
+.kebab{background:none;border:0;cursor:pointer;padding:4px 6px;font-size:18px;line-height:1;color:var(--text)}
+.btn-group{display:flex}
+.btn-group .btn:first-child{border-radius:4px 0 0 4px}
+.btn-group .btn:last-child{border-radius:0 4px 4px 0;border-left:1px solid rgba(255,255,255,.25);padding:6px 8px}
+.cp-mid{display:flex;justify-content:center;min-width:0}
+.search{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:20px;padding:4px 12px;width:min(500px,100%);background:var(--surface)}
+.search svg{width:16px;height:16px;color:var(--muted);flex:none}
+.search input{border:0;background:transparent;flex:1;min-width:60px;outline:none}
+.facet{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:1px 4px 1px 0;font-size:13.5px;white-space:nowrap}
+.facet .fi{background:var(--primary);color:var(--primary-ink);border-radius:3px 0 0 3px;padding:2px 5px;display:flex}
+.facet .fi svg{width:12px;height:12px;color:var(--primary-ink)}
+.facet button{background:none;border:0;cursor:pointer;padding:0 4px;color:var(--muted)}
+.selbar{display:flex;align-items:center;gap:8px}
+.views{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.views button{background:var(--surface);border:0;border-left:1px solid var(--border);padding:7px 12px;cursor:pointer;display:flex}
+.views button:first-child{border-left:0}
+.views button.on{background:var(--primary-soft)}
+.views svg{width:16px;height:16px}
+.crumbs{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+.crumbs .root{color:var(--primary);cursor:pointer;font-size:13px;background:none;border:0;padding:0;text-align:left}
+.crumbs .cur{font-size:16px;display:flex;align-items:center;gap:6px}
+.crumbs .trail{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.crumbs .trail .sep{color:var(--muted);font-size:13px}
+
+.btn{border:1px solid var(--border);background:var(--surface-2);padding:6px 12px;border-radius:4px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(.97)}
+.btn svg{width:15px;height:15px}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink);font-weight:500}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn-link{background:none;border:0;color:var(--primary);cursor:pointer;padding:4px 0}
+.link{color:var(--primary);cursor:pointer;background:none;border:0;padding:0;text-align:left}
+
+/* dashboard */
+.dash{display:flex;gap:16px;align-items:stretch;justify-content:space-between;padding:12px 16px 4px;flex-wrap:wrap}
+.tiles{display:flex;gap:8px;flex-wrap:wrap}
+.tile{border:0;border-radius:4px;padding:8px 16px;min-width:130px;text-align:center;cursor:default;line-height:1.25}
+.tile b{display:block;font-size:18px}
+.tile.t1{background:var(--t1-bg)} .tile.t1 b{color:var(--t1)}
+.tile.t2{background:var(--t2-bg)} .tile.t2 b{color:var(--t2)}
+.tile.t3{background:var(--t3-bg)} .tile.t3 b{color:var(--t3)}
+.stats{display:flex;align-items:center;gap:24px;border:1px solid var(--border);border-radius:6px;padding:8px 18px;background:var(--surface)}
+.stats .period{display:flex;align-items:center;gap:8px;padding-right:24px;border-right:1px solid var(--border)}
+.stats .period svg{width:16px;height:16px}
+.stats .k{line-height:1.25}
+.stats .k b{display:block;font-size:18px;font-weight:600}
+.stats .k b span{font-size:13px;color:var(--muted);font-weight:400}
+
+/* list */
+.list{background:var(--surface);position:relative}
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl .num{text-align:right;white-space:nowrap}
+.tbl .center{text-align:center}
+.tbl .cb{width:40px;padding-left:16px}
+.tbl .cb label{display:block;cursor:pointer}
+.tbl tr.section td{background:var(--surface-2);font-weight:600;padding:6px 10px}
+.tbl tr.section td .sub{font-weight:400;color:var(--muted)}
+.tbl input[type=number]{width:70px;text-align:right}
+.clickable tbody tr{cursor:pointer}
+.clickable tbody tr:hover td{background:var(--surface-2)}
+.clickable tbody tr.selected td{background:var(--sel)}
+.tbl select,.tbl input:not([type=checkbox]),.f select{width:100%;border:0;border-bottom:1px solid var(--border);background:transparent;padding:3px 2px}
+.tbl select:focus,.tbl input:focus,.f select:focus{border-bottom-color:var(--primary);outline:none}
+.sample{min-height:540px;overflow:hidden}
+.sample tbody{opacity:.16;pointer-events:none;user-select:none}
+.helper{position:absolute;left:50%;top:90px;transform:translateX(-50%);text-align:center;width:min(580px,92%)}
+.helper h2{font-size:22px;margin:22px 0 6px;font-weight:600}
+.helper p{margin:0;font-size:15px}
+.art{height:240px;border-radius:10px;background:linear-gradient(120deg,#d9d6de,#c7c4cc 60%,#e8e6eb 60%);position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.art .paper{position:absolute;width:150px;height:200px;background:#fbfbfb;border-radius:3px;box-shadow:0 4px 12px rgba(0,0,0,.15);left:50px;top:24px;transform:rotate(-8deg)}
+.art .paper.p2{left:78px;top:30px;transform:rotate(3deg)}
+.art .paper.p2::before{content:"";position:absolute;left:14px;right:14px;top:22px;height:10px;background:#d8d5dc;border-radius:2px;box-shadow:0 18px 0 #e6e3ea,0 34px 0 #e6e3ea}
+.art .paper.p2::after{content:"";position:absolute;left:14px;right:14px;bottom:20px;height:70px;background:#8a8580;border-radius:2px}
+.art .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.art .play::after{content:"";border-left:22px solid #8a8591;border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:6px}
+.art .cap{position:absolute;right:34px;top:84px;font-size:22px;font-style:italic;color:#2b2b2b;text-align:left;line-height:1.25;font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive}
+
+/* form */
+.actions-bar{display:flex;align-items:center;gap:6px;padding:10px 16px;flex-wrap:wrap}
+.statusbar{margin-left:auto;display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--surface)}
+.statusbar span{padding:6px 14px;color:var(--muted);font-size:13.5px;white-space:nowrap}
+.statusbar span.on{background:var(--primary-soft);color:var(--text);font-weight:600}
+.smart{display:flex;flex-wrap:wrap;justify-content:center}
+.smart button{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);padding:4px 14px;cursor:pointer;min-width:110px;text-align:left;line-height:1.15}
+.smart button+button{border-left:0}
+.smart button:hover{background:var(--surface-2)}
+.smart small{display:block;font-weight:600;color:var(--text)}
+.smart svg{width:20px;height:20px;color:var(--muted)}
+.sheet{background:var(--surface);border:1px solid var(--border);margin:0 16px 16px;padding:20px 24px;border-radius:4px}
+.sheet h1{font-size:28px;margin:0 0 14px;font-weight:600}
+.sheet .kicker{font-size:15px;margin:0}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:6px 40px;margin-bottom:18px}
+@media (max-width:700px){.fields{grid-template-columns:1fr}}
+.f{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px;align-items:baseline;padding:3px 0}
+.f label{font-weight:600}
+.f label sup{color:var(--info);font-weight:600;margin-left:2px;cursor:help}
+.f .val{min-width:0}
+.f .val .sub{color:var(--muted);display:block}
+.tabs{display:flex;border-bottom:1px solid var(--border)}
+.tabs span{padding:8px 16px;border:1px solid var(--border);border-bottom:0;border-radius:4px 4px 0 0;background:var(--surface);margin-bottom:-1px;font-weight:500}
+.tabs span.off{border-color:transparent;color:var(--primary);background:none}
+.tax{display:inline-block;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:0 8px;font-size:12px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.badge{display:inline-block;border-radius:10px;padding:1px 9px;font-size:12.5px;font-weight:500;white-space:nowrap;background:var(--surface-2);border:1px solid var(--border)}
+.badge.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.badge.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.badge.info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.badge.pri{background:var(--primary-soft);color:var(--text);border-color:transparent}
+.totals{display:flex;justify-content:flex-end;margin-top:12px}
+.totals table td{padding:3px 10px;text-align:right}
+.totals .grand td{font-weight:700;font-size:15px;border-top:1px solid var(--border);padding-top:6px}
+.addline{display:flex;gap:16px;padding:8px 10px}
+.banner{margin:0 16px 12px;padding:10px 14px;border-radius:4px;border-left:4px solid var(--info);background:var(--info-soft);font-size:13.5px}
+.banner.ok{border-color:var(--ok);background:var(--ok-soft)}
+.banner.warn{border-color:var(--warn);background:var(--warn-soft)}
+.banner b{font-weight:600}
+.trackbox{border:1px dashed var(--border);border-radius:6px;padding:12px 14px;margin:6px 0 18px;background:var(--surface-2)}
+.trackbox h3{margin:0 0 8px;font-size:14px}
+.trackbox .row{display:grid;grid-template-columns:160px minmax(0,1fr) auto;gap:10px;align-items:end}
+@media (max-width:700px){.trackbox .row{grid-template-columns:1fr}}
+.trackbox label{font-size:12px;color:var(--muted);display:block}
+.trackbox select,.trackbox input{width:100%;border:1px solid var(--border);background:var(--surface);border-radius:4px;padding:6px 8px}
+.hint{font-size:12.5px;color:var(--warn);margin-top:8px}
+.hint.ok{color:var(--ok)}
+.empty{padding:56px 16px;text-align:center;color:var(--muted)}
+.empty p{margin:0 0 14px;font-size:15px;color:var(--text)}
+
+/* modal + toast */
+.backdrop{position:fixed;inset:0;background:rgba(10,10,20,.45);display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:60px 16px 16px;overflow:auto}
+.modal{background:var(--surface);border-radius:6px;max-width:720px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3);overflow:hidden}
+.modal.sm{max-width:500px}
+.modal header{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:500;font-size:18px;display:flex;justify-content:space-between;align-items:center}
+.modal header button{background:none;border:0;font-size:20px;cursor:pointer;color:var(--muted);line-height:1}
+.modal .body{padding:16px 18px}
+.modal .body p{margin:0 0 10px}
+.modal ul.notes{margin:12px 0 0;padding-left:18px;font-size:13.5px}
+.modal ul.notes li{margin:3px 0}
+.vtbl tbody tr{cursor:pointer}
+.vtbl tbody tr:hover td{background:var(--surface-2)}
+.vtbl tbody tr.on td{background:var(--sel)}
+.vtbl input[type=radio]{accent-color:var(--primary);width:16px;height:16px;margin:0;cursor:pointer}
+.vendor-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:0;border-bottom:1px dashed var(--border);padding:2px 0;cursor:pointer;color:var(--text);text-align:left}
+.vendor-btn:hover{border-bottom-color:var(--primary);color:var(--primary)}
+.vendor-btn svg{width:13px;height:13px;color:var(--muted)}
+.warn-txt{color:var(--warn);font-size:12px}
+.modal dl{display:grid;grid-template-columns:140px 1fr;gap:4px 10px;margin:10px 0 14px}
+.modal dt{color:var(--muted)}
+.modal dd{margin:0;font-weight:500}
+.modal footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap}
+#toasts{position:fixed;right:16px;top:calc(100px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:8px;z-index:60;max-width:min(400px,calc(100vw - 32px))}
+.toast{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--ok);border-radius:4px;padding:10px 14px;box-shadow:0 6px 20px rgba(0,0,0,.18);font-size:13.5px;animation:tin .2s ease-out}
+.toast.err{border-left-color:var(--danger)}
+.toast.info{border-left-color:var(--info)}
+@keyframes tin{from{transform:translateX(8px);opacity:0}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- additions v2 ---- */
+.neutral{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
+.neutral .dropdown .menu{left:50%;transform:translateX(-50%);text-align:left}
+.demo-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:4px;padding:0 8px;cursor:pointer;font-size:13px}
+.menu button small{display:block;color:var(--muted);font-size:12px;white-space:normal}
+.menu.wide{min-width:320px}
+.menu.wide button{align-items:flex-start;flex-direction:column;gap:0;white-space:normal}
+.search{flex-wrap:wrap;row-gap:4px}
+.search-wrap{width:min(560px,100%)}
+.search-wrap .search{width:100%}
+.stoggle{background:none;border:0;border-left:1px solid var(--border);padding:0 2px 0 10px;cursor:pointer;color:var(--muted);font-size:13px;align-self:stretch}
+.spanel{position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);width:min(680px,calc(100vw - 24px));background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,.18);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:12px 0;z-index:40}
+.spanel > div + div{border-left:1px solid var(--border)}
+@media (max-width:620px){.spanel{grid-template-columns:1fr}.spanel > div + div{border-left:0;border-top:1px solid var(--border);margin-top:8px;padding-top:8px}}
+.spanel h4{margin:0 0 6px;padding:0 16px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.spanel h4 svg{width:15px;height:15px}
+.spanel .h-f svg{color:var(--primary)} .spanel .h-g svg{color:#1b9aaa} .spanel .h-s svg{color:#e0a800}
+.spanel button{display:block;width:100%;background:none;border:0;padding:5px 16px 5px 34px;text-align:left;cursor:pointer;position:relative}
+.spanel button:hover{background:var(--surface-2)}
+.spanel button.on::before{content:"✓";position:absolute;left:14px;color:var(--primary);font-weight:700}
+.spanel hr{border:0;border-top:1px solid var(--border);margin:5px 0}
+.badge.danger{background:var(--danger-soft);color:var(--danger);border-color:transparent}
+.sheet{position:relative}
+.ribbon{position:absolute;top:18px;right:-1px;padding:5px 16px;border-radius:4px 0 0 4px;font-weight:600;font-size:13px}
+.ribbon.ok{background:var(--ok);color:#fff}.ribbon.warn{background:var(--warn);color:#fff}.ribbon.danger{background:var(--danger);color:#fff}
+.dlg-lines{margin-top:10px}
+.dlg-lines .tbl td,.dlg-lines .tbl th{padding:6px 8px;font-size:13px}
+.totals .pay td{color:var(--muted);font-style:italic}
+.amount-due td{font-weight:700;border-top:1px solid var(--border);padding-top:6px}
+.fld{display:grid;grid-template-columns:140px minmax(0,1fr);gap:8px;align-items:center;margin:8px 0}
+.fld input{border:1px solid var(--border);background:var(--surface);border-radius:4px;padding:6px 8px;width:100%}
+.nomap{color:var(--warn);font-size:12.5px}
+/* ---- product many2one autocomplete + Search more (v3) ---- */
+.m2o{position:relative;display:flex;align-items:center}
+.tbl .m2o .m2o-in{padding-right:20px}
+.m2o-caret{position:absolute;right:0;top:0;bottom:0;background:none;border:0;color:var(--muted);font-size:10px;cursor:pointer;padding:0 4px}
+.m2o-menu{position:fixed;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:45;padding:4px 0;min-width:240px;max-width:min(480px,calc(100vw - 16px));max-height:320px;overflow:auto}
+.m2o-menu button{display:flex;gap:16px;justify-content:space-between;width:100%;background:none;border:0;padding:5px 14px;text-align:left;cursor:pointer;white-space:nowrap}
+.m2o-menu button:hover,.m2o-menu button.hl{background:var(--surface-2)}
+.m2o-menu .ref{color:var(--muted)}
+.m2o-menu .more{color:var(--primary);padding-left:22px}
+.m2o-menu .none{padding:5px 14px;color:var(--muted);font-style:italic}
+.modal.xl{max-width:1240px}
+.modal.lg{max-width:900px}
+.pdf-wrap{background:#e9e9ee;padding:16px;border-radius:4px;max-height:65vh;overflow:auto}
+.pdf{background:#fff;color:#222;max-width:800px;margin:0 auto;padding:32px 36px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:13px}
+.pdf h2{font-size:20px;margin:22px 0 12px;font-weight:600}
+.pdf-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid #6f5a8e;padding-bottom:12px}
+.pdf-co{font-size:22px;font-weight:700;color:#6f5a8e}
+.pdf-muted,.pdf .lbl{color:#777}
+.pdf-vendor{text-align:right}
+.pdf-meta{display:flex;gap:40px;flex-wrap:wrap;margin-bottom:16px}
+.pdf-so{margin-bottom:18px;border:1px solid #ddd;border-radius:4px;overflow:hidden}
+.pdf-so-h{background:#f4f2f7;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.pdf table{width:100%;border-collapse:collapse;table-layout:fixed}
+.pdf th:nth-child(2){width:70px}.pdf th:nth-child(3){width:110px}.pdf th:nth-child(4){width:110px}
+.pdf th,.pdf td{padding:6px 10px;border-bottom:1px solid #eee;text-align:left}
+.pdf th{font-weight:600;color:#555}
+.pdf .num{text-align:right}
+.pdf tfoot td{border-bottom:0;font-weight:600}
+.pdf-total{display:flex;justify-content:flex-end;gap:32px;font-size:15px;border-top:2px solid #6f5a8e;padding-top:10px}
+.mail .f{grid-template-columns:110px minmax(0,1fr)}
+.mail-body{border:1px solid var(--border);border-radius:4px;padding:12px;margin:10px 0;line-height:1.5}
+.mail-body ul{margin:6px 0 10px;padding-left:20px}
+.attach{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:4px;padding:6px 10px;cursor:pointer}
+.ps-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.ps-search{flex:1 1 300px;max-width:440px;margin:0 auto;display:flex;align-items:center;gap:8px;border:1px solid var(--primary);border-radius:4px;padding-left:10px;background:var(--surface)}
+.ps-search svg{width:16px;height:16px;flex:none}
+.ps-search input{flex:1;min-width:0;border:0;background:transparent;padding:8px 0;outline:none}
+.ps-search .stoggle{padding:0 12px}
+.ps-pager{display:flex;align-items:center;gap:6px;margin-left:auto;white-space:nowrap}
+.ps-pager button{border:0;background:var(--surface-2);padding:5px 11px;border-radius:4px;cursor:pointer;color:var(--muted)}
+.ps-pager button:disabled{cursor:default;opacity:.6}
+.ps-tbl tbody tr{cursor:pointer}
+.ps-tbl tbody tr:hover td{background:var(--surface-2)}
+.ps-tbl tbody tr.on td{background:var(--sel)}
+.ps-tbl td,.ps-tbl th{white-space:nowrap}
+.ps-tbl .star{color:var(--muted);width:30px;padding-right:0}
+.ps-tbl .star svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6}
+.ps-tbl tfoot td{font-weight:600;background:var(--surface-2);border-bottom:0}
+.ps-tbl .opt{width:30px;color:var(--muted)}
+.ps-body{min-height:340px}
+.ps-tbl .pn{max-width:260px;overflow:hidden;text-overflow:ellipsis}
+.ps-tbl td,.ps-tbl th{padding-left:8px;padding-right:8px}
+</style>
+</head>
+<body>
+<div class="chrome">
+  <div class="neutral" id="neutral"></div>
+  <header class="topbar" id="topbar"></header>
+</div>
+<main id="main"></main>
+<div id="modal"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+/* ---------- master data ---------- */
+const VENDORS = {
+  eng:{id:'eng', name:'ENGLAND, INC./ Creek Side', short:'ENGLAND'},
+  fab:{id:'fab', name:'FABRICUT INC.', short:'FABRICUT'},
+  kra:{id:'kra', name:'KRAVET INC.', short:'KRAVET'},
+  hfc:{id:'hfc', name:'HICKORY FURNITURE CO.', short:'HICKORY'}
+};
+const PRODUCTS = [
+  {id:'p1', ref:'FAB-PORT-14', name:'[Fabric] 14 YARDS PORTICO BUTTERSCOTCH', route:'dropship', price:420,
+    vendors:[{v:'eng', onHand:42, cost:265, lead:5},{v:'kra', onHand:15, cost:252, lead:9},{v:'fab', onHand:0, cost:248, lead:14}]},
+  {id:'p2', ref:'SOF-CS-3S', name:'[Sofa] CREEK SIDE 3-SEAT SECTIONAL', route:'dropship', price:2890,
+    vendors:[{v:'eng', onHand:6, cost:1850, lead:21},{v:'hfc', onHand:2, cost:1790, lead:28}]},
+  {id:'p3', ref:'CHR-ACC-OAT', name:'[Chair] ACCENT CHAIR - OATMEAL', route:'dropship', price:760,
+    vendors:[{v:'eng', onHand:18, cost:480, lead:10},{v:'hfc', onHand:0, cost:455, lead:30}]},
+  {id:'p4', ref:'FAB-VEL-NV10', name:'[Fabric] 10 YARDS VELVET NAVY', route:'dropship', price:310,
+    vendors:[{v:'fab', onHand:60, cost:190, lead:4},{v:'kra', onHand:25, cost:198, lead:6}]},
+  {id:'p5', ref:'DEC-PIL-20', name:'[Decor] THROW PILLOW 20" - IVORY', route:'stock', price:45, stock:120, forecast:110, vendors:[]}
+];
+const MEMBERS = [
+  {id:'m1', name:'#1 Brooklyn Furniture', city:'Brooklyn NY', street:'245 Atlantic Ave', zip:'Brooklyn, NY 11201'},
+  {id:'m2', name:'#2 Queens Home Decor', city:'Queens NY', street:'88-14 Queens Blvd', zip:'Elmhurst, NY 11373'},
+  {id:'m3', name:'#3 Hudson Valley Interiors', city:'Poughkeepsie NY', street:'17 Raymond Ave', zip:'Poughkeepsie, NY 12603'},
+  {id:'m4', name:'#4 Shoreline Living', city:'Asbury Park NJ', street:'601 Cookman Ave', zip:'Asbury Park, NJ 07712'}
+];
+const APPS = {
+  sales:{name:'Sales', color:'#e46f78', menus:[['Orders','nav-sales'],['Products'],['Reporting'],['Configuration']]},
+  purchase:{name:'Purchase', color:'#5b8fd6', menus:[['Orders','nav-purchase'],['Products'],['Reporting'],['Configuration']]},
+  pick:{name:'Inventory', color:'#e9a23b', menus:[['Overview'],['Operations','nav-pick'],['Products'],['Reporting'],['Configuration']]},
+  acct:{name:'Accounting', color:'#2f9e8f', menus:[['Dashboard'],['Customers'],['Vendors','nav-bills'],['Reporting'],['Configuration']]}
+};
+const TAX = 0.06, CUTOFF_HOUR = 17, DAY = 86400000;
+const prod = id => PRODUCTS.find(p=>p.id===id);
+const mem  = id => MEMBERS.find(m=>m.id===id);
+const ven  = id => VENDORS[id];
+const vinfo = (pid, v) => prod(pid).vendors.find(x=>x.v===v);
+
+/* ---------- state (resets on reload) ---------- */
+const fresh = () => ({soSeq:53, poSeq:22, dsSeq:4, billSeq:1, uid:1, sos:[], rfqs:[], picks:[], bills:[],
+  view:{app:'sales', screen:'list', id:null, filter:null}, sel:[], menu:null, vpick:null,
+  soF:{mine:true, quot:false, sale:false, ds:false}, queue:[], dlg:null, lock:false});
+let S = fresh();
+const nid = () => 'x' + (S.uid++);
+const soById = id => S.sos.find(s=>s.id===id);
+const rfqById = id => S.rfqs.find(r=>r.id===id);
+const pickById = id => S.picks.find(p=>p.id===id);
+const billById = id => S.bills.find(b=>b.id===id);
+const isOpen = r => r.state==='draft';
+const pad = (n,w) => String(n).padStart(w,'0');
+const isDs = l => !!(l.pid && prod(l.pid).route==='dropship');
+const hasDs = so => so.lines.some(isDs);
+const pendingDs = so => so.lines.some(l=>isDs(l) && !l.po);
+const soVendors = so => [...new Set(so.lines.filter(l=>isDs(l) && l.vendor).map(l=>ven(l.vendor).short))];
+const newLine = () => ({pid:'', vendor:null, qty:1, delivered:0, po:null});
+const uniq = a => [...new Set(a)];
+
+/* ---------- formatting ---------- */
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money = n => (n<0?'- ':'') + '$ ' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+const num = n => n.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+const dt = t => new Date(t).toLocaleString('en-US',{month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
+const dOnly = t => new Date(t).toLocaleDateString('en-US',{month:'short', day:'numeric', year:'numeric'});
+const mdy = t => new Date(t).toLocaleDateString('en-US',{month:'2-digit', day:'2-digit', year:'2-digit'});
+const sameDay = (a,b) => new Date(a).toDateString()===new Date(b).toDateString();
+const plural = (n, w) => `${n} ${w}${n===1?'':'s'}`;
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function cutoffFor(t){ const d = new Date(t), c = new Date(t); c.setHours(CUTOFF_HOUR,0,0,0); if(d >= c) c.setDate(c.getDate()+1); return c.getTime(); }
+const soUntaxed = so => so.lines.reduce((a,l)=> a + (l.pid ? prod(l.pid).price*l.qty : 0), 0);
+const rfqTotal = r => r.lines.reduce((a,l)=> a + l.price*l.qty, 0);
+const rfqSoIds = r => uniq(r.lines.map(l=>l.soId));
+const rlink = r => `<button class="link" data-act="open-rfq" data-id="${r.id}">${r.name}</button>`;
+const solink = so => `<button class="link" data-act="open-so" data-id="${so.id}">${so.name}</button>`;
+function soDelivery(so){
+  if(so.state!=='sale') return null;
+  const ls = so.lines.filter(l=>isDs(l) && l.po); if(!ls.length) return null;
+  const tot = ls.reduce((a,l)=>a+l.qty,0), del = ls.reduce((a,l)=>a+(l.delivered||0),0);
+  if(del===0) return ['Waiting','info']; if(del>=tot) return ['Fully Delivered','ok']; return ['Partially Delivered','warn'];
+}
+function toast(msg, kind='ok'){
+  const el = document.createElement('div'); el.className = 'toast ' + (kind==='ok'?'':kind); el.innerHTML = msg;
+  document.getElementById('toasts').appendChild(el); setTimeout(()=>el.remove(), 7000);
+}
+
+/* ---------- receipt / billing helpers ---------- */
+const pickFor = (r, soId) => S.picks.find(p=>p.poId===r.id && p.soId===soId);
+const lineReceived = (r, l) => { const p = pickFor(r, l.soId); return p && p.state==='done' ? l.qty : 0; };
+const lineBilled = l => S.bills.reduce((a,b)=> a + b.lines.filter(x=>x.poLineId===l.id).reduce((s,x)=>s+x.qty,0), 0);
+const lineToBill = (r, l) => Math.max(0, lineReceived(r,l) - lineBilled(l));
+const poToBillQty = r => r.lines.reduce((a,l)=>a+lineToBill(r,l),0);
+const poToBillAmt = r => r.lines.reduce((a,l)=>a+lineToBill(r,l)*l.price,0);
+const billPoIds = b => uniq(b.lines.map(x=>x.poId).filter(Boolean));
+const poBills = r => S.bills.filter(b=>billPoIds(b).includes(r.id));
+const billTotal = b => b.lines.reduce((a,x)=>a+x.qty*x.price,0);
+const billPaid = b => b.payments.reduce((a,p)=>a+p.amount,0);
+const billResidual = b => Math.max(0, Math.round((billTotal(b)-billPaid(b))*100)/100);
+function payState(b){
+  if(b.state!=='posted') return null;
+  if(billResidual(b)<=0) return ['Paid','ok'];
+  if(billPaid(b)>0) return ['Partially Paid','warn'];
+  return ['Not Paid','danger'];
+}
+function poBillStatus(r){
+  if(r.state!=='purchase') return null;
+  const tot = r.lines.reduce((a,l)=>a+l.qty,0), billed = r.lines.reduce((a,l)=>a+lineBilled(l),0);
+  if(billed>=tot) return ['Fully Billed','ok'];
+  if(poToBillQty(r)>0) return ['Waiting Bills','warn'];
+  return ['Nothing to Bill',''];
+}
+const pdone = r => S.picks.some(p=>p.poId===r.id && p.state==='done');
+
+/* ---------- merge eligibility (confirmed dropship PO, same vendor, same day) ---------- */
+function poBlocker(r){
+  if(r.state!=='purchase') return 'it is no longer in Confirmed status';
+  if(!sameDay(r.confirmed, Date.now())) return 'it was not confirmed today';
+  if(pdone(r)) return 'one of its dropship orders has already been validated';
+  if(poBills(r).length) return 'a vendor bill is already linked to it';
+  return null;
+}
+const eligiblePOs = v => S.rfqs.filter(r=>r.vendor===v && !poBlocker(r)).sort((a,b)=>a.confirmed-b.confirmed);
+
+/* ---------- icons ---------- */
+const I = {
+  grid:'<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="3" cy="3" r="2"/><circle cx="9" cy="3" r="2"/><circle cx="15" cy="3" r="2"/><circle cx="3" cy="9" r="2"/><circle cx="9" cy="9" r="2"/><circle cx="15" cy="9" r="2"/><circle cx="3" cy="15" r="2"/><circle cx="9" cy="15" r="2"/><circle cx="15" cy="15" r="2"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  filter:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18l-7 9v6l-4 2v-8z"/></svg>',
+  layers:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l10 5-10 5L2 8z"/><path d="M2 12l10 5 10-5v3l-10 5-10-5z" opacity=".7"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.4l-5.6 2.9 1.1-6.2L3 9.7l6.2-.9z"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+  kanban:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16"/><path d="M9 4v10M15 4v6"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="1"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
+  pivot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16"/><path d="M3 10h18M3 15h18M9 4v16M15 4v16"/></svg>',
+  graph:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="12" width="3" height="8"/><rect x="10" y="6" width="3" height="14"/><rect x="16" y="9" width="3" height="11"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H9l-5 4z"/></svg>',
+  cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>',
+  truck:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 7h11v9H2zM13 10h4l3 3v3h-7"/><circle cx="6" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg>',
+  dollar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M16 7c0-1.7-1.8-3-4-3s-4 1.3-4 3 1.8 2.5 4 3 4 1.3 4 3-1.8 3-4 3-4-1.3-4-3"/></svg>',
+  bill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>',
+  match:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="11" rx="1"/><rect x="13" y="9" width="8" height="11" rx="1"/><path d="M15 14.5l1.6 1.6 3-3"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>'
+};
+const smartBtn = (icon, label, count, act, extra='') => `<button data-act="${act}" ${extra}>${I[icon]}<span><span class="small muted">${label}</span><small>${count}</small></span></button>`;
+const statusbar = (steps, on) => `<div class="statusbar">${steps.map(s=>`<span class="${s===on?'on':''}">${s}</span>`).join('')}</div>`;
+const viewSwitcher = () => `<div class="views" aria-label="Views">${[['list','List'],['kanban','Kanban'],['cal','Calendar'],['pivot','Pivot'],['graph','Graph'],['clock','Activity']].map(([v,l],i)=>`<button class="${i===0?'on':''}" data-act="${i===0?'none':'noop'}" aria-label="${l}">${I[v]}</button>`).join('')}</div>`;
+const searchBox = (facet, clearAct) => `<div class="search">${I.search}${facet?`<span class="facet"><span class="fi">${I.filter}</span>${facet}<button data-act="${clearAct||'noop'}" aria-label="Remove filter">✕</button></span>`:''}<input placeholder="Search..." aria-label="Search"></div>`;
+const badge = (txt, kind='') => `<span class="badge ${kind}">${txt}</span>`;
+
+/* ---------- top bar + demo bar ---------- */
+function viewTopbar(){
+  const app = APPS[S.view.app];
+  const apps = S.menu==='apps' ? `<div class="menu">${Object.entries(APPS).map(([k,a])=>`<button data-act="nav-${k==='acct'?'bills':k}"><span class="app-ico" style="background:${a.color}">${a.name[0]}</span>${a.name}</button>`).join('')}</div>` : '';
+  return `<div class="dropdown"><button class="appsbtn" data-act="toggle-menu" data-menu="apps" aria-label="Apps">${I.grid}</button>${apps}</div>
+  <span class="appname">${app.name}</span>
+  <nav>${app.menus.map(m=>`<button data-act="${m[1]||'noop'}">${m[0]}</button>`).join('')}</nav>
+  <div class="spacer"></div>
+  <div class="sys"><span class="hide-sm">${I.chat}</span><span class="hide-sm">${I.clock}</span><span>FTS</span><span class="avatar">E</span></div>`;
+}
+function viewNeutral(){
+  const m = S.menu==='demo' ? `<div class="menu wide">
+    <button data-act="scenario" data-k="empty">Start empty<small>No orders. Build everything from Sales.</small></button>
+    <button data-act="scenario" data-k="one">1 confirmed ENGLAND PO today<small>Confirm a new ENGLAND SO to get the merge prompt; merge goes straight into that PO.</small></button>
+    <button data-act="scenario" data-k="two">2 confirmed ENGLAND POs today<small>Confirm a new ENGLAND SO, choose Merge, then pick the PO.</small></button>
+    <button data-act="scenario" data-k="draft">Draft ENGLAND RFQ open<small>Confirm a new ENGLAND SO: its lines are added to the draft automatically.</small></button>
+    <button data-act="scenario" data-k="bill">Dropship validated, ready to bill<small>Create Bill or use Bill Matching with an incoming vendor bill.</small></button></div>` : '';
+  return `<span>Database neutralized for testing: no emails sent, etc.</span><div class="dropdown"><button class="demo-btn" data-act="toggle-menu" data-menu="demo">Load test scenario ▾</button>${m}</div>`;
+}
+
+/* ---------- business actions ---------- */
+function newSO(){
+  const so = {id:nid(), name:'S'+pad(S.soSeq++,5), customer:'', lines:[newLine()], state:'draft', date:Date.now(), poIds:[]};
+  S.sos.push(so); return so;
+}
+function discardIfEmpty(){
+  const v = S.view; if(v.app!=='sales' || v.screen!=='form') return;
+  const so = soById(v.id);
+  if(so && so.state==='draft' && !so.customer && !so.lines.some(l=>l.pid)){
+    S.sos = S.sos.filter(s=>s!==so);
+    if(so.name==='S'+pad(S.soSeq-1,5)) S.soSeq--;
+  }
+}
+function createRFQ(v, t=Date.now()){
+  const r = {id:nid(), name:'P'+pad(S.poSeq++,5), vendor:v, state:'draft', created:t, cutoff:cutoffFor(t), lines:[], reopened:null};
+  S.rfqs.push(r); return r;
+}
+function addSoLines(r, so, lines, t=Date.now(), afterConfirm=false){
+  lines.forEach(l=>{
+    r.lines.push({id:nid(), pid:l.pid, qty:l.qty, price:vinfo(l.pid,l.vendor).cost, soId:so.id, member:so.customer, addedAt:t, afterConfirm});
+    l.po = r.id;
+  });
+  if(!so.poIds.includes(r.id)) so.poIds.push(r.id);
+}
+const pendingLinesFor = (so, v) => so.lines.filter(l=>isDs(l) && !l.po && l.vendor===v);
+const dsVendors = so => uniq(so.lines.filter(l=>isDs(l) && !l.po && l.vendor).map(l=>l.vendor));
+
+function confirmSO(so){
+  if(!so.customer){ toast('Select a customer before confirming.','err'); return false; }
+  so.lines = so.lines.filter(l=>l.pid && l.qty>0);
+  if(!so.lines.length){ so.lines=[newLine()]; toast('Add at least one product.','err'); return false; }
+  if(so.lines.some(l=>isDs(l) && !l.vendor)){ toast('Select a vendor for every dropship line.','err'); return false; }
+  so.state = 'sale'; so.date = Date.now();
+  const msgs = [];
+  dsVendors(so).forEach(v=>{
+    const lines = pendingLinesFor(so, v), V = ven(v).short;
+    const draft = S.rfqs.find(r=>r.vendor===v && isOpen(r));
+    if(draft){ addSoLines(draft, so, lines); msgs.push(`${plural(lines.length,'line')} for ${V} added automatically to draft RFQ ${rlink(draft)}`); return; }
+    if(eligiblePOs(v).length){ S.queue.push({soId:so.id, vendor:v}); return; }
+    const r = createRFQ(v); addSoLines(r, so, lines); msgs.push(`new draft RFQ ${rlink(r)} created for ${V}`);
+  });
+  const waiting = S.queue.filter(q=>q.soId===so.id).map(q=>ven(q.vendor).short);
+  toast(`<b>${so.name}</b> confirmed.${msgs.length ? ' ' + cap(msgs.join('; ')) + '.' : ''}${waiting.length ? ` Choose where to put the ${waiting.join(', ')} lines.` : ''}`);
+  return true;
+}
+
+/* decision queue: one dialog per vendor that already has a confirmed PO today */
+function nextDecision(){
+  while(S.queue.length){
+    const q = S.queue[0], so = soById(q.soId), lines = pendingLinesFor(so, q.vendor);
+    if(!lines.length){ S.queue.shift(); continue; }
+    const draft = S.rfqs.find(r=>r.vendor===q.vendor && isOpen(r));
+    if(draft){ addSoLines(draft, so, lines); S.queue.shift(); toast(`${plural(lines.length,'line')} from <b>${so.name}</b> added automatically to draft RFQ ${rlink(draft)}.`); continue; }
+    const pos = eligiblePOs(q.vendor);
+    if(!pos.length){ const r = createRFQ(q.vendor); addSoLines(r, so, lines); S.queue.shift(); toast(`No confirmed PO can be modified anymore. New draft RFQ ${rlink(r)} created for <b>${so.name}</b>.`,'info'); continue; }
+    openExistingPO(q, so, lines, pos); return;
+  }
+  S.lock = false; closeModal(); render();
+}
+function linesPreview(lines, so){
+  return `<div class="tbl-wrap dlg-lines"><table class="tbl"><thead><tr><th>Product</th><th>Ship to</th><th class="num">Qty</th><th class="num">Cost</th></tr></thead><tbody>${
+    lines.map(l=>`<tr><td>${esc(prod(l.pid).name)}</td><td>${esc(mem(so.customer).name)}</td><td class="num">${num(l.qty)}</td><td class="num">${money(vinfo(l.pid,l.vendor).cost*l.qty)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function openExistingPO(q, so, lines, pos){
+  S.dlg = {soId:so.id, vendor:q.vendor, choice:null};
+  const V = esc(ven(q.vendor).name);
+  const intro = pos.length===1
+    ? `A confirmed purchase order (<b>${pos[0].name}</b>) already exists for <b>${V}</b>, confirmed on ${mdy(pos[0].confirmed)}.`
+    : `Confirmed purchase orders (${pos.map(r=>`<b>${r.name}</b>`).join(', ')}) already exist for <b>${V}</b>, confirmed on ${mdy(pos[0].confirmed)}.`;
+  openModal('Existing Purchase Order Found',
+    `<p>${intro}</p><p>Would you like to add the items from Sales Order (<b>${so.name}</b>) to the existing purchase order or create a new purchase order?</p>
+     ${linesPreview(lines, so)}
+     <p class="small muted" style="margin-top:10px">Merge returns the PO to Draft, adds these lines and requires reconfirmation. Create New PO leaves the confirmed PO unchanged and creates a separate draft RFQ.</p>`,
+    `<button class="btn btn-primary" data-act="ep-merge">Merge into Existing PO</button><button class="btn" data-act="ep-new">Create New PO</button>`, 'sm', true);
+}
+function openSelectPO(pos){
+  const so = soById(S.dlg.soId); S.dlg.choice = null;
+  const rows = pos.map(r=>`<tr data-act="po-row" data-id="${r.id}"><td><input type="radio" name="posel" value="${r.id}" aria-label="${r.name}"></td>
+    <td>${r.name}</td><td>${mdy(r.confirmed)} <span class="small muted">${new Date(r.confirmed).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</span></td><td>${badge('Purchase Order','ok')}</td>
+    <td class="small">${rfqSoIds(r).map(id=>soById(id).name).join(', ')}</td></tr>`).join('');
+  openModal('Select Purchase Order',
+    `<p>Select the purchase order you want to merge the new sales order into.</p>
+     <p class="small muted">${so.name} for ${esc(mem(so.customer).name)}. Vendor: ${esc(ven(S.dlg.vendor).name)}.</p>
+     <div class="tbl-wrap"><table class="tbl vtbl"><thead><tr><th></th><th>Odoo PO Number</th><th>Confirmation Date</th><th>PO Status</th><th>Linked SOs</th></tr></thead><tbody>${rows}</tbody></table></div>`,
+    `<button class="btn btn-primary" id="mergeBtn" data-act="merge-go" disabled>Confirm Merge</button><button class="btn" data-act="merge-back">Back</button>`, '', true);
+}
+function doMerge(r){
+  const q = S.queue[0], so = soById(q.soId);
+  const why = poBlocker(r);                          // revalidate at the moment of merge
+  if(why){ toast(`<b>${r.name}</b> can no longer be modified: ${why}.`,'err'); nextDecision(); return; }
+  const cancelled = S.picks.filter(p=>p.poId===r.id).map(p=>p.name);
+  S.picks = S.picks.filter(p=>p.poId!==r.id);         // open dropship orders are cancelled with the PO reset
+  r.reopened = {at:Date.now(), soId:so.id, prevConfirmed:r.confirmed, cancelled};
+  r.state = 'draft';
+  addSoLines(r, so, pendingLinesFor(so, q.vendor), Date.now(), true);
+  S.queue.shift();
+  toast(`${rlink(r)} returned to Draft and updated with lines from <b>${so.name}</b>. Confirm it again to send the updated PO to ${ven(r.vendor).short}.`,'info');
+  nextDecision();
+}
+function createNewFor(q){
+  const so = soById(q.soId), kept = eligiblePOs(q.vendor).map(r=>r.name);
+  const r = createRFQ(q.vendor); addSoLines(r, so, pendingLinesFor(so, q.vendor));
+  S.queue.shift();
+  toast(`${kept.join(', ')} unchanged. New draft RFQ ${rlink(r)} created for <b>${so.name}</b>.`);
+  nextDecision();
+}
+
+function confirmPO(r, silent=false, t=Date.now()){
+  r.state = 'purchase'; r.confirmed = t; r.reopened = null;
+  r.lines.forEach(l=>{ l.afterConfirm = false; });
+  const names = [];
+  rfqSoIds(r).forEach(soId=>{
+    if(pickFor(r, soId)) return;
+    const so = soById(soId);
+    const p = {id:nid(), name:'DS/'+pad(S.dsSeq++,5), poId:r.id, soId, member:so.customer, vendor:r.vendor,
+      lines:r.lines.filter(l=>l.soId===soId).map(l=>({pid:l.pid, qty:l.qty})), state:'ready', scheduled:t+3*DAY};
+    S.picks.push(p); names.push(p.name);
+  });
+  if(!silent) toast(`<b>${r.name}</b> confirmed. Created ${names.length===1?'1 dropship order':names.length+' dropship orders'}, one per member: ${names.join(', ')}.`);
+}
+function validatePick(p, silent=false, t=Date.now()){
+  p.state = 'done'; p.done = t;
+  const so = soById(p.soId), r = rfqById(p.poId);
+  p.lines.forEach(pl=>{ const l = so.lines.find(x=>x.pid===pl.pid && x.po===p.poId && (x.delivered||0) < x.qty); if(l) l.delivered = (l.delivered||0) + pl.qty; });
+  if(!silent) toast(`<b>${p.name}</b> is done. ${so.name}: ${soDelivery(so)[0]}. ${rlink(r)} now has products to bill.`);
+}
+
+/* ---------- vendor bills ---------- */
+function newBill(vendor, source, lines, ref=''){
+  const b = {id:nid(), name:null, vendor, ref, date:Date.now(), state:'draft', source, lines, payments:[]};
+  S.bills.push(b); return b;
+}
+function createBillFromPO(r){
+  const lines = r.lines.map(l=>({l, q:lineToBill(r,l)})).filter(x=>x.q>0)
+    .map(({l,q})=>({id:nid(), pid:l.pid, label:prod(l.pid).name, qty:q, price:l.price, poLineId:l.id, poId:r.id, soId:l.soId, member:l.member}));
+  if(!lines.length){ toast('Nothing left to bill on this PO.','err'); return; }
+  const b = newBill(r.vendor, 'po', lines);
+  toast(`Draft bill created from <b>${r.name}</b> with ${plural(lines.length,'line')}. Every line keeps its link to the PO line, SO and member.`);
+  go('acct','form',b.id);
+}
+function simulateIncoming(r){
+  const lines = r.lines.map(l=>({l, q:lineToBill(r,l)})).filter(x=>x.q>0)
+    .map(({l,q})=>({id:nid(), pid:l.pid, label:`${prod(l.pid).name.replace(/^\[[^\]]+\]\s*/,'')} - ship to ${mem(l.member).name}`, qty:q, price:l.price, poLineId:null, poId:null, soId:null, member:null}));
+  if(!lines.length) return null;
+  lines.push({id:nid(), pid:null, label:'Freight / delivery charge', qty:1, price:45, poLineId:null, poId:null, soId:null, member:null});
+  return newBill(r.vendor, 'email', lines, `INV-${ven(r.vendor).short.slice(0,3)}-${Math.floor(10000+Math.random()*89999)}`);
+}
+/* map bill lines to PO lines by product + quantity still to bill */
+function mapBill(b, r){
+  const used = {};
+  return b.lines.map(bl=>{
+    if(bl.poLineId) return {bl, pl:r.lines.find(l=>l.id===bl.poLineId) || null, why:null};
+    if(!bl.pid) return {bl, pl:null, why:'No product on the vendor line'};
+    const cands = r.lines.filter(l=>l.pid===bl.pid).map(l=>({l, rem:lineToBill(r,l)-(used[l.id]||0)})).filter(x=>x.rem>=bl.qty);
+    const hit = cands.find(x=>x.rem===bl.qty) || cands[0];
+    if(!hit) return {bl, pl:null, why: r.lines.some(l=>l.pid===bl.pid) ? 'Quantity is more than received and not yet billed' : 'Product is not on this PO'};
+    used[hit.l.id] = (used[hit.l.id]||0) + bl.qty;
+    return {bl, pl:hit.l, why:null};
+  });
+}
+function postBill(b){
+  const d = new Date();
+  b.state = 'posted'; b.name = `BILL/${d.getFullYear()}/${pad(d.getMonth()+1,2)}/${pad(S.billSeq++,4)}`; b.posted = Date.now();
+  toast(`<b>${b.name}</b> posted. Payment status: Not Paid, amount due ${money(billResidual(b))}.`);
+}
+
+/* ---------- navigation ---------- */
+function go(app, screen='list', id=null, filter=null){
+  discardIfEmpty();
+  if(!(app==='sales' && screen==='list')) S.sel = [];
+  S.view = {app, screen, id, filter}; S.menu = null;
+  render(); window.scrollTo({top:0});
+}
+
+/* ---------- views: sales ---------- */
+const soStatus = so => so.state==='sale' ? badge('Sales Order','ok') : badge('Quotation','info');
+function rfqCell(so){
+  if(!hasDs(so)) return '';
+  if(so.state==='draft') return '';
+  if(pendingDs(so)) return badge('Awaiting RFQ','warn');
+  return so.poIds.map(id=>rfqById(id).name).join(', ');
+}
+function soSearch(){
+  const f = S.view.filter, F = S.soF, facets = [];
+  if(f && f.ids) facets.push(['RFQ sources','nav-sales','']);
+  if(F.mine) facets.push(['My Quotations','sf-clear','mine']);
+  const st = [F.quot && 'Quotations', F.sale && 'Sales Orders'].filter(Boolean);
+  if(st.length) facets.push([st.join(' or '),'sf-clear','state']);
+  if(F.ds) facets.push(['Dropshipping','sf-clear','ds']);
+  const fh = facets.map(([t,a,g])=>`<span class="facet"><span class="fi">${I.filter}</span>${t}<button data-act="${a}" data-g="${g}" aria-label="Remove ${t} filter">✕</button></span>`).join('');
+  const it = (k,l) => `<button class="${F[k]?'on':''}" data-act="sf" data-f="${k}" role="menuitemcheckbox" aria-checked="${!!F[k]}">${l}</button>`;
+  const panel = S.menu==='search' ? `<div class="spanel" role="menu">
+    <div><h4 class="h-f">${I.filter} Filters</h4>${it('mine','My Quotations')}<hr>${it('quot','Quotations')}${it('sale','Sales Orders')}<hr>${it('ds','Dropshipping')}<hr><button data-act="noop">Order Date ▸</button><hr><button data-act="noop">Add Custom Filter</button></div>
+    <div><h4 class="h-g">${I.layers} Group By</h4><button data-act="noop">Salesperson</button><button data-act="noop">Customer</button><button data-act="noop">Order Date ▸</button><hr><button data-act="noop">Add Custom Group ▾</button></div>
+    <div><h4 class="h-s">${I.star} Favorites</h4><button data-act="noop">Save current search ▸</button></div></div>` : '';
+  return `<div class="dropdown search-wrap"><div class="search">${I.search}${fh}<input placeholder="Search..." aria-label="Search" data-act="search-open"><button class="stoggle" data-act="toggle-menu" data-menu="search" aria-label="Toggle search panel" aria-expanded="${S.menu==='search'}">▾</button></div>${panel}</div>`;
+}
+function soFiltered(){
+  const f = S.view.filter, F = S.soF;
+  let list = S.sos.slice().reverse();
+  if(f && f.ids) list = list.filter(s=>f.ids.includes(s.id));
+  if(F.quot || F.sale) list = list.filter(s=>(F.quot && s.state==='draft') || (F.sale && s.state==='sale'));
+  if(F.ds) list = list.filter(hasDs);
+  return list;
+}
+function viewSOList(){
+  const list = soFiltered();
+  const n = S.sel.length;
+  const mid = n ? `<div class="selbar"><button class="btn" data-act="clear-sel">${n} selected <span class="muted">✕</span></button>
+      <div class="dropdown"><button class="btn" data-act="toggle-menu" data-menu="actions">${I.gear} Actions</button>${S.menu==='actions'?`<div class="menu">
+        <button data-act="noop">Export</button><button data-act="noop">Archive</button><button data-act="noop">Unarchive</button><button data-act="noop">Duplicate</button><button data-act="noop">Delete</button>
+        <hr><button data-act="noop">Mark Quotation as Sent</button><button data-act="noop">Send an email</button></div>`:''}</div></div>`
+    : soSearch();
+  const cp = `<div class="cp"><div class="cp-left"><div class="btn-group"><button class="btn btn-primary" data-act="new-so">New</button><button class="btn btn-primary" data-act="noop" aria-label="More">▾</button></div>
+      <span class="cp-title">Quotations</span><button class="kebab" data-act="noop" aria-label="Options">⋮</button></div>
+    <div class="cp-mid">${mid}</div><div class="cp-right">${viewSwitcher()}</div></div>`;
+  const toConfirm = S.sos.filter(s=>s.state==='draft').length;
+  const toDeliver = S.sos.filter(s=>{ const d = soDelivery(s); return s.state==='sale' && (!d || d[0]!=='Fully Delivered'); }).length;
+  const orders = S.sos.filter(s=>s.state==='sale');
+  const revenue = orders.reduce((a,s)=>a+soUntaxed(s)*(1+TAX),0);
+  const dash = `<div class="dash"><div class="tiles"><div class="tile t1"><b>${toConfirm}</b>To Confirm</div><div class="tile t2"><b>${toDeliver}</b>To Deliver</div><div class="tile t3"><b>0</b>To Invoice</div></div>
+    <div class="stats"><div class="period">${I.cal} Last 7 days ▾</div><div class="k">Sales Orders<b>${orders.length} <span>N/A</span></b></div><div class="k">Sales Revenue<b>${money(revenue)} <span>N/A</span></b></div></div></div>`;
+  const allSel = list.length && list.every(s=>S.sel.includes(s.id));
+  const head = `<thead><tr><th class="cb"><label><input type="checkbox" data-selall ${allSel?'checked':''} aria-label="Select all"></label></th><th>Number</th><th>Order Date</th><th>Customer</th><th>Salesperson</th><th class="center">Dropshipping</th><th>Vendor</th><th class="num">Total</th><th>Status</th><th>RFQ / PO</th></tr></thead>`;
+  if(!S.sos.length){
+    const fake = ['Gemini Furniture','Deco Addict','Azure Interior','Lumber Inc','Ready Mat','Wood Corner','Wendi Baltz','Thomas Passot'];
+    const fv = ['ENGLAND','','KRAVET','FABRICUT','','ENGLAND','HICKORY',''];
+    const rows = fake.map((c,i)=>`<tr><td class="cb"><input type="checkbox" disabled></td><td>REF000${i+1}</td><td>Oct ${20-i}, 10:36 AM</td><td>${c}</td><td>FTS</td><td class="center"><input type="checkbox" disabled ${fv[i]?'checked':''}></td><td>${fv[i]}</td><td class="num">$ ${(1240+i*913).toLocaleString('en-US')}.00</td><td><span class="badge">Quotation</span></td><td></td></tr>`).join('');
+    return cp + dash + `<div class="list sample"><div class="tbl-wrap"><table class="tbl">${head}<tbody aria-hidden="true">${rows}</tbody></table></div>
+      <div class="helper"><div class="art" aria-hidden="true"><div class="paper"></div><div class="paper p2"></div><div class="play"></div><div class="cap">Setup Quotes<br>That Convert</div></div>
+      <h2>Beat competitors with stunning quotations!</h2><p>Boost sales with online payments or signatures, upsells, and a great customer portal.</p></div></div>`;
+  }
+  const rows = list.length ? list.map(so=>{
+    const sel = S.sel.includes(so.id);
+    return `<tr data-act="open-so" data-id="${so.id}" class="${sel?'selected':''}"><td class="cb"><label><input type="checkbox" data-sel="${so.id}" ${sel?'checked':''} aria-label="Select ${so.name}"></label></td>
+    <td>${so.name}</td><td>${dt(so.date)}</td><td>${esc(so.customer?mem(so.customer).name:'')}</td><td>FTS</td>
+    <td class="center"><input type="checkbox" disabled ${hasDs(so)?'checked':''} aria-label="Dropshipping"></td><td>${esc(soVendors(so).join(', '))}</td>
+    <td class="num">${money(soUntaxed(so)*(1+TAX))}</td><td>${soStatus(so)}</td><td>${rfqCell(so)}</td></tr>`;
+  }).join('') : `<tr><td colspan="10" class="empty" style="padding:36px">No orders match the current filters.</td></tr>`;
+  return cp + dash + `<div class="list clickable"><div class="tbl-wrap"><table class="tbl">${head}<tbody>${rows}</tbody></table></div></div>`;
+}
+function vendorCell(l, i, draft){
+  if(!l.pid) return '';
+  if(!isDs(l)) return '<span class="muted">—</span>';
+  const vi = l.vendor ? vinfo(l.pid, l.vendor) : null;
+  const short = vi && vi.onHand < l.qty ? `<div class="warn-txt">Only ${vi.onHand} on hand</div>` : '';
+  if(!draft) return `${esc(ven(l.vendor).short)}${short}`;
+  return `<button class="vendor-btn" data-act="vendor-change" data-i="${i}" title="Change vendor">${l.vendor?esc(ven(l.vendor).short):'<span class="muted">Select vendor</span>'} ${I.pencil}</button>${short}`;
+}
+function viewSOForm(so){
+  if(!so) return viewSOList();
+  const draft = so.state==='draft';
+  const picks = S.picks.filter(p=>p.soId===so.id);
+  const m = so.customer ? mem(so.customer) : null;
+  const smart = `<div class="smart">${so.poIds.length?smartBtn('cart','Purchase',so.poIds.length,'so-purchase',`data-id="${so.id}"`):''}${picks.length?smartBtn('truck','Dropship',picks.length,'so-dropship',`data-id="${so.id}"`):''}</div>`;
+  const custOpts = `<option value=""></option>` + MEMBERS.map(x=>`<option value="${x.id}" ${x.id===so.customer?'selected':''}>${esc(x.name)}</option>`).join('');
+  const routeNote = p => p.route==='dropship' ? 'Route: Dropship' : 'Route: Ship from stock';
+  let lines;
+  if(draft){
+    lines = so.lines.map((l,i)=>{ const p = l.pid?prod(l.pid):null; return `<tr>
+      <td><div class="m2o"><input class="m2o-in" data-m2o="${i}" data-val="${p?esc(p.name):''}" value="${p?esc(p.name):''}" placeholder="Search a product" autocomplete="off" aria-label="Product" aria-haspopup="listbox"><button class="m2o-caret" data-act="m2o-caret" data-i="${i}" tabindex="-1" aria-label="Show products">▼</button></div>${p?`<div class="small muted">${routeNote(p)}</div>`:''}</td>
+      <td>${vendorCell(l,i,true)}</td>
+      <td class="num"><input type="number" min="1" value="${l.qty}" data-chg="so-line-qty" data-i="${i}" aria-label="Quantity"></td>
+      <td class="num">${p?num(p.price):''}</td><td><span class="tax">6%</span></td><td class="num">${p?money(p.price*l.qty):''}</td>
+      <td><button class="link muted" data-act="so-del-line" data-i="${i}" aria-label="Delete line">${I.trash}</button></td></tr>`; }).join('');
+    lines = `<table class="tbl"><thead><tr><th>Product</th><th>Vendor</th><th class="num">Quantity</th><th class="num">Unit Price</th><th>Taxes</th><th class="num">Amount</th><th></th></tr></thead><tbody>${lines}</tbody></table><div class="addline"><button class="btn-link" data-act="so-add-line">Add a product</button><button class="btn-link" data-act="noop">Add a section</button><button class="btn-link" data-act="noop">Add a note</button></div>`;
+  } else {
+    lines = so.lines.map((l,i)=>{ const p = prod(l.pid); const r = l.po ? rfqById(l.po) : null; return `<tr>
+      <td>${esc(p.name)}<div class="small muted">${routeNote(p)}</div></td><td>${vendorCell(l,i,false)}</td><td class="num">${num(l.qty)}</td><td class="num">${num(l.delivered||0)}</td><td class="num">0.00</td>
+      <td>${r?`${rlink(r)} ${r.state==='purchase'?'':'<span class="small muted">draft</span>'}`:isDs(l)?badge('Awaiting RFQ','warn'):'<span class="muted">—</span>'}</td>
+      <td class="num">${num(p.price)}</td><td><span class="tax">6%</span></td><td class="num">${money(p.price*l.qty)}</td></tr>`; }).join('');
+    lines = `<table class="tbl"><thead><tr><th>Product</th><th>Vendor</th><th class="num">Quantity</th><th class="num">Delivered</th><th class="num">Invoiced</th><th>RFQ / PO</th><th class="num">Unit Price</th><th>Taxes</th><th class="num">Amount</th></tr></thead><tbody>${lines}</tbody></table>`;
+  }
+  const un = soUntaxed(so), d = soDelivery(so);
+  return `<div class="cp"><div class="cp-left"><button class="btn btn-primary" data-act="new-so">New</button>
+    <div class="crumbs"><button class="root" data-act="nav-sales">Quotations</button><span class="cur">${so.name} <button class="kebab" data-act="noop" aria-label="Options">⋮</button></span></div></div>
+    <div class="cp-mid">${smart}</div><div></div></div>
+  <div class="actions-bar">${draft?`<button class="btn btn-primary" data-act="noop">Send</button><button class="btn" data-act="noop">Download</button><button class="btn" data-act="so-confirm" data-id="${so.id}">Confirm</button><button class="btn" data-act="noop">Preview</button><button class="btn" data-act="noop">Cancel</button>`
+      :`<button class="btn btn-primary" data-act="noop">Create Invoice</button><button class="btn" data-act="noop">Send</button><button class="btn" data-act="noop">Preview</button><button class="btn" data-act="noop">Cancel</button>`}
+    ${statusbar(['Quotation','Quotation Sent','Sales Order'], draft?'Quotation':'Sales Order')}</div>
+  <div class="sheet"><h1>${so.name}</h1>
+    <div class="fields">
+      <div>
+        <div class="f"><label>Customer</label><div class="val">${draft?`<select data-chg="so-customer" aria-label="Customer">${custOpts}</select>`:esc(m.name)}${m?`<span class="sub">${esc(m.city)}<br>United States</span>`:''}</div></div>
+        <div class="f"><label>Invoice Address</label><div class="val">${m?esc(m.name):''}</div></div>
+        <div class="f"><label>Delivery Address</label><div class="val">${m?esc(m.name):''}</div></div>
+      </div>
+      <div>
+        <div class="f"><label>${draft?'Quotation Date':'Order Date'}<sup title="Creation date of the quotation, or confirmation date of the order">?</sup></label><div class="val">${dt(so.date)}</div></div>
+        <div class="f"><label>Pricelist<sup>?</sup></label><div class="val">USD (USD)</div></div>
+        <div class="f"><label>Payment Terms</label><div class="val muted">Immediate</div></div>
+        <div class="f"><label>Dropshipping<sup title="Checked automatically when the order has at least one product with the Dropship route (read-only)">?</sup></label><div class="val"><input type="checkbox" disabled ${hasDs(so)?'checked':''} aria-label="Dropshipping (read-only)"></div></div>
+        ${d?`<div class="f"><label>Delivery</label><div class="val">${badge(d[0],d[1])}</div></div>`:''}
+      </div>
+    </div>
+    <div class="tabs"><span>Order Lines</span><span class="off">Other Info</span></div>
+    <div class="tbl-wrap">${lines}</div>
+    <div class="totals"><table><tr><td class="muted">Untaxed Amount:</td><td>${money(un)}</td></tr><tr><td class="muted">Tax 6%:</td><td>${money(un*TAX)}</td></tr><tr class="grand"><td>Total:</td><td>${money(un*(1+TAX))}</td></tr></table></div>
+  </div>`;
+}
+
+/* ---------- views: purchase ---------- */
+const rfqStatus = r => r.state==='purchase' ? badge('Purchase Order','ok') : (r.reopened ? `${badge('RFQ','info')} ${badge('To reconfirm','warn')}` : badge('RFQ','info'));
+function viewRFQList(){
+  const f = S.view.filter;
+  let list = S.rfqs.slice().reverse();
+  if(f && f.ids) list = list.filter(r=>f.ids.includes(r.id));
+  if(f && f.soId) list = list.filter(r=>r.lines.some(l=>l.soId===f.soId));
+  const rows = list.map(r=>{
+    const sos = rfqSoIds(r).map(id=>soById(id).name), bs = poBillStatus(r);
+    return `<tr data-act="open-rfq" data-id="${r.id}"><td>${r.name}</td><td>${esc(ven(r.vendor).name)}</td><td>${sos.length} SO<div class="small muted">${sos.join(', ')}</div></td><td class="num">${r.lines.length}</td>
+    <td>${r.state==='purchase'?dt(r.confirmed):'<span class="muted">—</span>'}</td><td class="num">${money(rfqTotal(r))}</td><td>${bs?badge(bs[0],bs[1]):''}</td><td>${rfqStatus(r)}</td></tr>`;
+  }).join('');
+  const filtered = f && (f.ids || f.soId);
+  return `<div class="cp"><div class="cp-left"><span class="cp-title">Requests for Quotation</span></div><div class="cp-mid">${searchBox(filtered?'Filtered':'', 'nav-purchase')}</div><div class="cp-right">${viewSwitcher()}</div></div>
+  <div class="list clickable">${list.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Reference</th><th>Vendor</th><th>Source SO</th><th class="num">Lines</th><th>Confirmation Date</th><th class="num">Total</th><th>Billing Status</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    :`<div class="empty"><p>No RFQs yet. Confirm a sales order with dropship products: its lines are added to the vendor's draft RFQ automatically.</p><button class="btn btn-primary" data-act="nav-sales">Go to Quotations</button></div>`}</div>`;
+}
+function viewRFQForm(r){
+  if(!r) return viewRFQList();
+  const open = isOpen(r), soIds = rfqSoIds(r), picks = S.picks.filter(p=>p.poId===r.id);
+  const members = uniq(r.lines.map(l=>l.member));
+  const bills = poBills(r), toBill = poToBillQty(r), anyDone = pdone(r);
+  const candidates = S.bills.filter(b=>b.vendor===r.vendor && !billPoIds(b).length).length;
+  const smart = `<div class="smart">${smartBtn('dollar','Sale',soIds.length,'rfq-sales',`data-id="${r.id}"`)}${picks.length?smartBtn('truck','Dropship',picks.length,'rfq-dropship',`data-id="${r.id}"`):''}${
+    bills.length?smartBtn('bill','Vendor Bills',bills.length,'po-bills',`data-id="${r.id}"`):''}${
+    !open && (anyDone || bills.length)?smartBtn('match','Bill Matching',candidates,'po-match',`data-id="${r.id}"`):''}</div>`;
+  let banner;
+  if(open && r.reopened){
+    const c = r.reopened.cancelled;
+    banner = `<div class="banner warn"><b>Returned to Draft</b> on ${dt(r.reopened.at)} to add ${solink(soById(r.reopened.soId))}. It was previously confirmed on ${mdy(r.reopened.prevConfirmed)}, so the vendor still has the earlier version. Confirm it again to send the updated PO.${c.length?` Dropship order${c.length>1?'s':''} ${c.join(', ')} ${c.length>1?'were':'was'} cancelled and will be recreated, one per member, on confirmation.`:''}</div>`;
+  } else if(open){
+    banner = `<div class="banner"><b>Consolidating:</b> ${plural(r.lines.length,'line')} from ${plural(soIds.length,'sales order')}, ${plural(members.length,'member')}. Each newly confirmed sales order with ${ven(r.vendor).short} dropship lines is added here automatically. This RFQ is never confirmed automatically.</div>`;
+  } else {
+    banner = `<div class="banner ok"><b>Confirmed</b> on ${dt(r.confirmed)}. Each sales order / member has its own dropship order. ${
+      poBlocker(r) ? 'This PO can no longer take new sales orders.' : `If another ${ven(r.vendor).short} dropship order is confirmed today, you will be asked whether to merge it into this PO or create a new one.`}</div>`;
+  }
+  let body = '';
+  soIds.forEach(id=>{
+    const so = soById(id), m = mem(so.customer), ls = r.lines.filter(l=>l.soId===id);
+    ls.forEach(l=>{
+      const p = prod(l.pid);
+      body += `<tr><td>${esc(p.name)}</td><td>${solink(so)}${l.afterConfirm?` ${badge('Added after confirmation','warn')}`:''}</td><td>${esc(m.name)}</td><td class="num">${num(l.qty)}</td>${open?'':`<td class="num">${num(lineReceived(r,l))}</td><td class="num">${num(lineBilled(l))}</td>`}<td class="num">${num(l.price)}</td><td class="num">${money(l.price*l.qty)}</td></tr>`;
+    });
+  });
+  const bs = poBillStatus(r);
+  const actions = open
+    ? `<button class="btn btn-primary" data-act="po-send" data-id="${r.id}">Send RFQ</button><button class="btn" data-act="rfq-confirm" data-id="${r.id}">Confirm Order</button><button class="btn" data-act="po-print" data-id="${r.id}">Print</button><button class="btn" data-act="noop">Cancel</button>`
+    : `${toBill>0?`<button class="btn btn-primary" data-act="po-create-bill" data-id="${r.id}">Create Bill</button><button class="btn" data-act="po-send" data-id="${r.id}">Send PO</button>`:`<button class="btn btn-primary" data-act="po-send" data-id="${r.id}">Send PO</button>`}<button class="btn" data-act="noop">Acknowledge</button><button class="btn" data-act="po-print" data-id="${r.id}">Print</button>`;
+  return `<div class="cp"><div class="cp-left"><div class="crumbs"><button class="root" data-act="nav-purchase">Requests for Quotation</button><span class="cur">${r.name} <button class="kebab" data-act="noop" aria-label="Options">⋮</button></span></div></div><div class="cp-mid">${smart}</div><div></div></div>
+  <div class="actions-bar">${actions}${statusbar(['RFQ','RFQ Sent','Purchase Order'], open?'RFQ':'Purchase Order')}</div>
+  ${banner}
+  <div class="sheet"><p class="kicker">${open?'Request for Quotation':'Purchase Order'}</p><h1>${r.name}</h1>
+    <div class="fields">
+      <div>
+        <div class="f"><label>Vendor<sup>?</sup></label><div class="val">${esc(ven(r.vendor).name)}</div></div>
+        <div class="f"><label>Vendor Reference<sup>?</sup></label><div class="val"></div></div>
+        <div class="f"><label>Currency</label><div class="val">USD</div></div>
+      </div>
+      <div>
+        <div class="f"><label>${open?'Order Deadline':'Confirmation Date'}<sup>?</sup></label><div class="val">${open?dt(r.cutoff):dt(r.confirmed)}</div></div>
+        ${open && r.reopened?`<div class="f"><label>Previously Confirmed</label><div class="val">${dt(r.reopened.prevConfirmed)}</div></div>`:''}
+        <div class="f"><label>Deliver To<sup>?</sup></label><div class="val">Dropship</div></div>
+        ${members.length===1?`<div class="f"><label>Dropship Address<sup>?</sup></label><div class="val">${esc(mem(members[0]).name)}${addrLines(mem(members[0])).map(x=>`<span class="sub">${esc(x)}</span>`).join('')}</div></div>`:''}
+        ${open?'':`<div class="f"><label>Receipt Status</label><div class="val">${picks.every(p=>p.state==='done')?badge('Fully Received','ok'):picks.some(p=>p.state==='done')?badge('Partially Received','warn'):badge('Not Received')}</div></div>
+        <div class="f"><label>Billing Status</label><div class="val">${badge(bs[0],bs[1])}</div></div>`}
+      </div>
+    </div>
+    <div class="tabs"><span>Products</span><span class="off">Other Info</span></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Product</th><th>Sales Order</th><th>Ship to (member)</th><th class="num">Quantity</th>${open?'':'<th class="num">Received</th><th class="num">Billed</th>'}<th class="num">Unit Price</th><th class="num">Amount</th></tr></thead><tbody>${body}</tbody></table></div>
+    <div class="totals"><table><tr class="grand"><td>Total:</td><td>${money(rfqTotal(r))}</td></tr></table></div>
+  </div>`;
+}
+
+/* ---------- views: dropship ---------- */
+const pickBadge = p => p.state==='done'?badge('Done','ok'):badge('Ready','info');
+/* srcPo is set when the list is opened from a PO's Dropship smart button (Purchase context) */
+function viewPickList(srcPo=null){
+  const f = srcPo ? {poId:srcPo.id} : S.view.filter;
+  let list = S.picks.slice().reverse();
+  if(f && f.soId) list = list.filter(p=>p.soId===f.soId);
+  if(f && f.poId) list = list.filter(p=>p.poId===f.poId);
+  const openAct = p => srcPo ? `data-act="po-ds-open" data-id="${p.id}" data-po="${srcPo.id}"` : `data-act="open-pick" data-id="${p.id}"`;
+  const rows = list.map(p=>`<tr ${openAct(p)}><td>${p.name}</td><td>${esc(ven(p.vendor).name)}</td><td>${esc(mem(p.member).name)}<div class="small muted">${esc(mem(p.member).city)}</div></td>
+    <td>${rfqById(p.poId).name}</td><td>${soById(p.soId).name}</td><td>${dt(p.scheduled)}</td><td>${pickBadge(p)}</td></tr>`).join('');
+  const head = srcPo
+    ? `<div class="cp-left"><div class="crumbs"><div class="trail"><button class="root" data-act="nav-purchase">Requests for Quotation</button><span class="sep">/</span><button class="root" data-act="open-rfq" data-id="${srcPo.id}">${srcPo.name}</button></div><span class="cur">Dropship</span></div></div><div class="cp-mid">${searchBox('', 'noop')}</div>`
+    : `<div class="cp-left"><span class="cp-title">Dropship</span></div><div class="cp-mid">${searchBox(f?'Filtered':'', 'nav-pick')}</div>`;
+  const empty = srcPo
+    ? `<div class="empty"><p>${srcPo.name} has no dropship transfers. They are created when the PO is confirmed, one per sales order / member.</p><button class="btn btn-primary" data-act="open-rfq" data-id="${srcPo.id}">Back to ${srcPo.name}</button></div>`
+    : `<div class="empty"><p>No dropship orders yet. They are created when a PO is confirmed, one per sales order / member.</p><button class="btn btn-primary" data-act="nav-purchase">Go to Purchase</button></div>`;
+  return `<div class="cp">${head}<div class="cp-right">${viewSwitcher()}</div></div>
+  <div class="list clickable">${list.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Reference</th><th>Contact (vendor)</th><th>Ship to</th><th>Purchase</th><th>Sale</th><th>Scheduled Date</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    :empty}</div>`;
+}
+function viewPickForm(p, srcPo=null){
+  if(p && srcPo && p.poId!==srcPo.id) p = null;           // never show a transfer of another PO in this context
+  if(!p) return viewPickList(srcPo);
+  const m = mem(p.member), r = rfqById(p.poId), so = soById(p.soId), done = p.state==='done';
+  const ops = p.lines.map(l=>`<tr><td>${esc(prod(l.pid).name)}</td><td class="num">${num(l.qty)}</td><td class="num">${num(l.qty)}</td></tr>`).join('');
+  const crumbs = srcPo
+    ? `<div class="trail"><button class="root" data-act="nav-purchase">Requests for Quotation</button><span class="sep">/</span><button class="root" data-act="open-rfq" data-id="${srcPo.id}">${srcPo.name}</button><span class="sep">/</span><button class="root" data-act="rfq-dropship" data-id="${srcPo.id}">Dropship</button></div>`
+    : `<button class="root" data-act="nav-pick">Dropship</button>`;
+  return `<div class="cp"><div class="cp-left"><div class="crumbs">${crumbs}<span class="cur">${p.name}</span></div></div>
+    <div class="cp-mid"><div class="smart">${smartBtn('cart','Purchase',r.name,'open-rfq',`data-id="${r.id}"`)}${smartBtn('dollar','Sale',so.name,'open-so',`data-id="${so.id}"`)}</div></div><div></div></div>
+  <div class="actions-bar">${done?`<button class="btn" data-act="noop">Print</button><button class="btn" data-act="noop">Return</button>`
+      :`<button class="btn btn-primary" data-act="pick-validate" data-id="${p.id}">Validate</button><button class="btn" data-act="noop">Print</button><button class="btn" data-act="noop">Cancel</button>`}
+    ${statusbar(['Draft','Waiting','Ready','Done'], done?'Done':'Ready')}</div>
+  ${done && poToBillQty(r)>0 ? `<div class="banner ok"><b>Delivered.</b> ${rlink(r)} now has products to bill: open it to Create Bill or use Bill Matching.</div>` : ''}
+  <div class="sheet"><h1>${p.name}</h1>
+    <div class="fields">
+      <div>
+        <div class="f"><label>Contact</label><div class="val">${esc(ven(p.vendor).name)}</div></div>
+        <div class="f"><label>Operation Type</label><div class="val">Dropship</div></div>
+        <div class="f"><label>Source Location</label><div class="val">Vendors</div></div>
+        <div class="f"><label>Destination</label><div class="val">Customers<span class="sub">${esc(m.name)}, ${esc(m.city)}</span></div></div>
+      </div>
+      <div>
+        <div class="f"><label>Scheduled Date</label><div class="val">${dt(p.scheduled)}</div></div>
+        ${done?`<div class="f"><label>Effective Date</label><div class="val">${dt(p.done)}</div></div>`:''}
+        <div class="f"><label>Source Document</label><div class="val">${r.name} <span class="muted">/</span> ${so.name}</div></div>
+      </div>
+    </div>
+    <div class="tabs"><span>Operations</span><span class="off">Additional Info</span></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Product</th><th class="num">Demand</th><th class="num">Quantity</th></tr></thead><tbody>${ops}</tbody></table></div>
+  </div>`;
+}
+
+/* ---------- views: accounting (vendor bills) ---------- */
+const billStatus = b => b.state==='posted' ? badge('Posted','ok') : badge('Draft','info');
+const billSource = b => b.source==='email' ? 'Received by email' : 'Created from PO';
+function viewBillList(){
+  const f = S.view.filter;
+  let list = S.bills.slice().reverse();
+  if(f && f.poId) list = list.filter(b=>billPoIds(b).includes(f.poId));
+  const rows = list.map(b=>{ const ps = payState(b); return `<tr data-act="open-bill" data-id="${b.id}"><td>${b.name||'<span class="muted">Draft</span>'}</td><td>${esc(ven(b.vendor).name)}</td><td>${dOnly(b.date)}</td><td>${esc(b.ref)}</td>
+    <td>${billPoIds(b).map(id=>rfqById(id).name).join(', ')||'<span class="muted">—</span>'}</td><td class="num">${money(billTotal(b))}</td><td class="num">${money(b.state==='posted'?billResidual(b):billTotal(b))}</td>
+    <td>${ps?badge(ps[0],ps[1]):''}</td><td>${billStatus(b)}</td></tr>`; }).join('');
+  return `<div class="cp"><div class="cp-left"><div class="btn-group"><button class="btn btn-primary" data-act="noop">New</button></div><span class="cp-title">Bills</span><button class="btn" data-act="noop">Upload</button></div><div class="cp-mid">${searchBox(f?'Filtered':'Bills', f?'nav-bills':'noop')}</div><div class="cp-right">${viewSwitcher()}</div></div>
+  <div class="list clickable">${list.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Number</th><th>Vendor</th><th>Bill Date</th><th>Reference</th><th>Source Document</th><th class="num">Total</th><th class="num">Amount Due</th><th>Payment Status</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    :`<div class="empty"><p>No vendor bills yet. Create one from a confirmed PO once its dropship order is validated, or match a bill received from the vendor.</p><button class="btn btn-primary" data-act="nav-purchase">Go to Purchase</button></div>`}</div>`;
+}
+function viewBillForm(b){
+  if(!b) return viewBillList();
+  const posted = b.state==='posted', ps = payState(b), pos = billPoIds(b).map(rfqById), soIds = uniq(b.lines.map(x=>x.soId).filter(Boolean));
+  const mapped = b.lines.filter(x=>x.poLineId).length, unm = b.lines.length - mapped;
+  const smart = `<div class="smart">${pos.map(r=>smartBtn('cart','Purchase',r.name,'open-rfq',`data-id="${r.id}"`)).join('')}${soIds.length?smartBtn('dollar','Sale',soIds.length,'bill-sales',`data-id="${b.id}"`):''}</div>`;
+  const actions = !posted
+    ? `<button class="btn btn-primary" data-act="bill-post" data-id="${b.id}">Confirm</button><button class="btn" data-act="noop">Cancel</button>`
+    : `${billResidual(b)>0?`<button class="btn btn-primary" data-act="bill-pay-open" data-id="${b.id}">Register Payment</button>`:''}<button class="btn" data-act="noop">Reset to Draft</button><button class="btn" data-act="noop">Print</button>`;
+  let banner = '';
+  if(!pos.length) banner = `<div class="banner warn"><b>Not linked to a purchase order.</b> Open the PO and use Bill Matching to link this bill's lines to PO lines, sales orders and members.</div>`;
+  else banner = `<div class="banner ${unm?'warn':''}"><b>Traceability:</b> ${mapped} of ${plural(b.lines.length,'line')} link back to a PO line, its sales order and member.${unm?` ${plural(unm,'line')} could not be mapped and stay${unm===1?'s':''} on the bill without a PO / SO link.`:''}</div>`;
+  const rows = b.lines.map(x=>{
+    const so = x.soId ? soById(x.soId) : null;
+    return `<tr><td>${x.pid?esc(prod(x.pid).name):'<span class="muted">—</span>'}</td><td>${esc(x.label)}</td>
+      <td>${so?solink(so):'<span class="nomap">Not mapped</span>'}</td><td>${x.member?esc(mem(x.member).name):'<span class="muted">—</span>'}</td>
+      <td class="num">${num(x.qty)}</td><td class="num">${num(x.price)}</td><td class="num">${money(x.qty*x.price)}</td></tr>`;
+  }).join('');
+  const total = billTotal(b);
+  const pays = b.payments.map(p=>`<tr class="pay"><td>Paid on ${dOnly(p.date)}:</td><td>${money(p.amount)}</td></tr>`).join('');
+  return `<div class="cp"><div class="cp-left"><div class="crumbs"><button class="root" data-act="nav-bills">Bills</button><span class="cur">${b.name||'Draft Bill'} <button class="kebab" data-act="noop" aria-label="Options">⋮</button></span></div></div><div class="cp-mid">${smart}</div><div></div></div>
+  <div class="actions-bar">${actions}${statusbar(['Draft','Posted'], posted?'Posted':'Draft')}</div>
+  ${banner}
+  <div class="sheet">${ps?`<div class="ribbon ${ps[1]}">${ps[0]}</div>`:''}<p class="kicker">Vendor Bill</p><h1>${b.name||'Draft'}</h1>
+    <div class="fields">
+      <div>
+        <div class="f"><label>Vendor</label><div class="val">${esc(ven(b.vendor).name)}</div></div>
+        <div class="f"><label>Bill Reference</label><div class="val">${esc(b.ref)||'<span class="muted">—</span>'}</div></div>
+        <div class="f"><label>Purchase Order</label><div class="val">${pos.length?pos.map(rlink).join(', '):'<span class="muted">—</span>'}</div></div>
+        <div class="f"><label>Source</label><div class="val">${billSource(b)}</div></div>
+      </div>
+      <div>
+        <div class="f"><label>Bill Date</label><div class="val">${dOnly(b.date)}</div></div>
+        <div class="f"><label>Accounting Date</label><div class="val">${dOnly(b.posted||b.date)}</div></div>
+        <div class="f"><label>Due Date</label><div class="val">${dOnly(b.date+30*DAY)} <span class="small muted">30 Days</span></div></div>
+        <div class="f"><label>Payment Status</label><div class="val">${ps?badge(ps[0],ps[1]):'<span class="muted">Available once confirmed</span>'}</div></div>
+        <div class="f"><label>Amount Due</label><div class="val"><b>${money(posted?billResidual(b):total)}</b></div></div>
+      </div>
+    </div>
+    <div class="tabs"><span>Invoice Lines</span><span class="off">Journal Items</span><span class="off">Other Info</span></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Product</th><th>Label</th><th>Sales Order</th><th>Member</th><th class="num">Quantity</th><th class="num">Price</th><th class="num">Amount</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="totals"><table><tr><td class="muted">Untaxed Amount:</td><td>${money(total)}</td></tr><tr class="grand"><td>Total:</td><td>${money(total)}</td></tr>${pays}${posted?`<tr class="amount-due"><td>Amount Due:</td><td>${money(billResidual(b))}</td></tr>`:''}</table></div>
+  </div>`;
+}
+function viewMatch(r){
+  if(!r) return viewRFQList();
+  const bills = S.bills.filter(b=>b.vendor===r.vendor).sort((a,b)=>(billPoIds(a).length>0)-(billPoIds(b).length>0) || b.date-a.date);
+  const leftQty = poToBillQty(r), leftAmt = poToBillAmt(r);
+  const rows = bills.map(b=>{
+    const linked = billPoIds(b), mine = linked.includes(r.id), total = billTotal(b), ps = payState(b);
+    let mapCell, diffCell, act;
+    if(!linked.length){
+      const mp = mapBill(b, r), ok = mp.filter(x=>x.pl), poAmt = ok.reduce((a,x)=>a+x.pl.price*x.bl.qty,0), diff = total - poAmt;
+      mapCell = `${ok.length} / ${b.lines.length} lines`;
+      diffCell = Math.abs(diff)<0.005 ? badge('Matches PO','ok') : `${badge('Differs','warn')} <span class="small">${money(diff)}</span>`;
+      act = `<button class="btn btn-primary" data-act="match-open" data-id="${b.id}" ${ok.length?'':'disabled title="No line can be mapped to this PO"'}>Match</button>`;
+    } else {
+      mapCell = `${b.lines.filter(x=>x.poId===r.id).length} / ${b.lines.length} lines`;
+      diffCell = '<span class="muted">—</span>';
+      act = mine ? badge('Matched','ok') : `<span class="small muted">Linked to ${linked.map(id=>rfqById(id).name).join(', ')}</span>`;
+    }
+    return `<tr><td><button class="link" data-act="open-bill" data-id="${b.id}">${b.name||'Draft'}</button></td><td>${dOnly(b.date)}</td><td>${esc(b.ref)||'<span class="muted">—</span>'}</td><td>${billSource(b)}</td>
+      <td class="num">${money(total)}</td><td>${mapCell}</td><td>${diffCell}</td><td>${ps?badge(ps[0],ps[1]):billStatus(b)}</td><td>${act}</td></tr>`;
+  }).join('');
+  return `<div class="cp"><div class="cp-left"><div class="crumbs"><button class="root" data-act="open-rfq" data-id="${r.id}">${r.name}</button><span class="cur">Bill Matching</span></div></div>
+    <div class="cp-mid">${searchBox('Vendor: '+ven(r.vendor).short,'noop')}</div><div class="cp-right">${viewSwitcher()}</div></div>
+  <div class="actions-bar">${leftQty>0?`<button class="btn btn-primary" data-act="po-create-bill" data-id="${r.id}">Create Bill</button>`:''}<button class="btn" data-act="sim-bill" data-id="${r.id}" ${leftQty>0?'':'disabled'}>Simulate bill received by email</button></div>
+  <div class="banner ${leftQty>0?'':'ok'}">${leftQty>0?`<b>Left to bill on ${r.name}:</b> ${plural(leftQty,'unit')}, ${money(leftAmt)}. Bills from ${esc(ven(r.vendor).name)} that are not yet linked to a PO can be matched here; matched lines keep the link to the PO line, sales order and member.`
+     :`<b>${r.name}</b> has nothing left to bill for the quantities received so far.`}</div>
+  <div class="list">${bills.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Bill</th><th>Bill Date</th><th>Reference</th><th>Source</th><th class="num">Total</th><th>Maps to PO</th><th>Amount vs PO</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+    :`<div class="empty"><p>No bills from ${esc(ven(r.vendor).name)} yet. Bills received from the vendor (email alias or upload) appear here so you can match them with ${r.name}.</p></div>`}</div>`;
+}
+
+/* ---------- modal ---------- */
+function openModal(title, body, footer, size='', locked=false){
+  S.lock = locked;
+  document.getElementById('modal').innerHTML = `<div class="backdrop" ${locked?'':'data-act="modal-close"'}><div class="modal ${size}" role="dialog" aria-modal="true" aria-labelledby="mh">
+    <header><span id="mh">${title}</span>${locked?'':'<button data-act="modal-x" aria-label="Close">×</button>'}</header><div class="body">${body}</div><footer>${footer}</footer></div></div>`;
+  const b = document.querySelector('.modal footer .btn-primary:not([disabled])') || document.querySelector('.modal footer .btn'); if(b) b.focus();
+}
+const closeModal = () => { document.getElementById('modal').innerHTML = ''; S.vpick = null; S.lock = false; };
+
+/* ---------- product many2one: dropdown + Search more ---------- */
+const M2O_LIMIT = 8;
+const prodMatch = (p, q) => { q = (q||'').trim().toLowerCase(); return !q || p.name.toLowerCase().includes(q) || (p.ref||'').toLowerCase().includes(q); };
+let M2O = null;   // {i, q, hl, hits}
+function closeM2o(restore=true){
+  document.querySelectorAll('.m2o-menu').forEach(m=>m.remove());
+  if(restore) document.querySelectorAll('.m2o-in').forEach(inp=>{ inp.value = inp.dataset.val; });
+  M2O = null;
+}
+function showM2o(i, q){
+  const inp = document.querySelector(`.m2o-in[data-m2o="${i}"]`); if(!inp) return;
+  document.querySelectorAll('.m2o-menu').forEach(m=>m.remove());
+  const hits = PRODUCTS.filter(p=>prodMatch(p,q)).slice(0, M2O_LIMIT);
+  M2O = {i, q, hl: hits.length ? 0 : -1, hits};
+  const menu = document.createElement('div');
+  menu.className = 'm2o-menu'; menu.setAttribute('role','listbox');
+  menu.innerHTML = (hits.length
+      ? hits.map((p,k)=>`<button role="option" class="${k===0?'hl':''}" data-act="m2o-pick" data-i="${i}" data-pid="${p.id}"><span>${esc(p.name)}</span><span class="ref">${esc(p.ref||'')}</span></button>`).join('')
+      : `<div class="none">No records</div>`)
+    + `<button class="more" data-act="m2o-more" data-i="${i}">Search more...</button>`;
+  document.body.appendChild(menu);
+  const r = inp.getBoundingClientRect();
+  menu.style.minWidth = Math.max(240, r.width) + 'px';
+  menu.style.left = Math.max(8, Math.min(r.left, window.innerWidth - menu.offsetWidth - 8)) + 'px';
+  const below = r.bottom + 2, h = menu.offsetHeight;
+  menu.style.top = (below + h > window.innerHeight - 8 && r.top - h - 2 > 8 ? r.top - h - 2 : below) + 'px';
+}
+function moveM2o(d){
+  if(!M2O || !M2O.hits.length) return;
+  M2O.hl = (M2O.hl + d + M2O.hits.length) % M2O.hits.length;
+  document.querySelectorAll('.m2o-menu [data-act="m2o-pick"]').forEach((b,k)=>b.classList.toggle('hl', k===M2O.hl));
+}
+function selectProduct(i, pid){
+  closeM2o(false);
+  const l = soById(S.view.id).lines[i];
+  if(pid && prod(pid).route==='dropship'){ l.pid = pid; l.vendor = defaultVendor(pid, l.qty); render(); return; }
+  l.pid = pid; l.vendor = null; render();
+}
+/* default vendor when picked from the dropdown: enough stock first, then lowest cost */
+function defaultVendor(pid, qty){
+  const vs = prod(pid).vendors.slice().sort((a,b)=> ((b.onHand>=qty)-(a.onHand>=qty)) || a.cost-b.cost);
+  return vs.length ? vs[0].v : null;
+}
+function setLine(i, pid, v){
+  const l = soById(S.view.id).lines[i];
+  l.pid = pid; l.vendor = prod(pid).route==='dropship' ? (v || defaultVendor(pid, l.qty)) : null; render();
+}
+/* qty already on RFQs / POs for this product + vendor */
+const committed = (pid, v) => S.rfqs.filter(r=>r.vendor===v).reduce((a,r)=>a + r.lines.filter(x=>x.pid===pid).reduce((b,x)=>b+x.qty,0), 0);
+/* Search more rows: one row per product + vendor (stock products: one row, company stock) */
+const vMatch = (x, q) => { q = (q||'').trim().toLowerCase(); return !q || ven(x.v).name.toLowerCase().includes(q) || ven(x.v).short.toLowerCase().includes(q); };
+const psCb = on => `<input type="checkbox" disabled ${on?'checked':''} aria-hidden="true" tabindex="-1">`;
+const vFc = (pid, x) => x.onHand - committed(pid, x.v);
+const pOh = p => p.vendors.length ? p.vendors.reduce((a,x)=>a+x.onHand,0) : (p.stock||0);
+const pFc = p => p.vendors.length ? p.vendors.reduce((a,x)=>a+vFc(p.id,x),0) : (p.forecast ?? p.stock ?? 0);
+const pCost = p => p.vendors.length ? Math.min(...p.vendors.map(x=>x.cost)) : 0;
+const psFoot = (span, oh, fc) => `<tr><td colspan="${span}"></td><td class="num">${num(oh)}</td><td class="num">${num(fc)}</td><td></td></tr>`;
+const psEmpty = (cols, q, what) => `<tr><td colspan="${cols}" class="muted" style="text-align:center;padding:24px">No ${what} matches “${esc(q)}”.</td></tr>`;
+const curLine = () => S.psearch ? soById(S.view.id)?.lines[S.psearch.i] : null;
+/* step 1 – Search: Product (one row per product, no vendor column) */
+function psRows(q){
+  const list = PRODUCTS.filter(p=>prodMatch(p,q)), cur = curLine();
+  const body = list.map(p=>`<tr class="${cur && cur.pid===p.id?'on':''}" data-act="ps-pick" data-pid="${p.id}"><td class="star">${I.star}</td><td class="pn" title="${esc(p.name)}">${esc(p.name)}</td><td>${esc(p.ref||'')}</td>
+      <td class="center">${psCb(p.route==='dropship')}</td><td></td><td class="num">${money(p.price)}</td><td class="center">${psCb(true)}</td>
+      <td class="num">${money(pCost(p))}</td><td></td><td class="num">${num(pOh(p))}</td><td class="num">${num(pFc(p))}</td><td></td></tr>`).join('') || psEmpty(12, q, 'product');
+  return {list, body, foot: psFoot(9, list.reduce((a,p)=>a+pOh(p),0), list.reduce((a,p)=>a+pFc(p),0))};
+}
+/* step 2 – Choose Vendor for Product (one row per vendor of the product) */
+function pvRows(pid, q){
+  const p = prod(pid), list = p.vendors.filter(x=>vMatch(x,q)), cur = curLine();
+  const body = list.map(x=>`<tr class="${cur && cur.pid===pid && cur.vendor===x.v?'on':''}" data-act="pv-pick" data-v="${x.v}"><td class="star">${I.star}</td><td class="pn" title="${esc(p.name)}">${esc(p.name)}</td><td>${esc(p.ref||'')}</td>
+      <td>${esc(ven(x.v).short)}</td><td class="center">${psCb(true)}</td><td></td><td class="num">${money(p.price)}</td><td class="center">${psCb(true)}</td>
+      <td class="num">${money(x.cost)}</td><td></td><td class="num">${num(x.onHand)}</td><td class="num">${num(vFc(pid,x))}</td><td></td></tr>`).join('') || psEmpty(13, q, 'vendor');
+  return {list, body, foot: psFoot(10, list.reduce((a,x)=>a+x.onHand,0), list.reduce((a,x)=>a+vFc(pid,x),0))};
+}
+const psShell = (q, label, n, head, r) => `<div class="ps-body"><div class="ps-bar">
+       <div class="ps-search">${I.search}<input id="psQ" placeholder="Search..." value="${esc(q)}" autocomplete="off" aria-label="${label}"><button class="stoggle" data-act="noop" aria-label="Toggle search panel">▼</button></div>
+       <div class="ps-pager"><span id="psPager">${n?`1-${n}`:'0'} / ${n}</span><button disabled aria-label="Previous">‹</button><button disabled aria-label="Next">›</button></div>
+     </div>
+     <div class="tbl-wrap"><table class="tbl ps-tbl"><thead><tr><th class="star"></th><th>Product Name</th><th title="Internal Reference">Internal Ref.</th>${head}<th class="center">Dropship</th><th>Company</th><th class="num">Sales Price</th><th class="center">Active</th><th class="num">Cost</th><th title="Income Account">Income Acc.</th><th class="num">On Hand</th><th class="num">Forecasted</th><th class="opt"><button class="link muted" data-act="noop" aria-label="Optional columns">⇄</button></th></tr></thead>
+       <tbody id="psBody">${r.body}</tbody><tfoot id="psFoot">${r.foot}</tfoot></table></div></div>`;
+const psFocus = () => { const inp = document.getElementById('psQ'); inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); };
+function openProductSearch(i, q=''){
+  S.psearch = {i, mode:'product', q};
+  const r = psRows(q);
+  openModal('Search: Product', psShell(q, 'Search products', r.list.length, '', r),
+    `<button class="btn btn-primary" data-act="noop">New</button><button class="btn" data-act="modal-x">Close</button>`, 'xl');
+  psFocus();
+}
+function openVendorChoose(i, pid, backQ=null){
+  S.psearch = {i, mode:'vendor', pid, backQ};
+  const r = pvRows(pid, '');
+  openModal('Choose Vendor for Product', psShell('', 'Search vendors', r.list.length, '<th>Vendor</th>', r),
+    (backQ!==null ? `<button class="btn" data-act="pv-back">Back</button>` : '') + `<button class="btn" data-act="modal-x">Close</button>`, 'xl');
+  psFocus();
+}
+/* ---------- PO PDF / email to vendor: delivery address per SO ---------- */
+const addrLines = m => [m.street, m.zip, 'United States'].filter(Boolean);
+function poDocHtml(r){
+  const open = r.state==='draft', V = ven(r.vendor);
+  const groups = rfqSoIds(r).map(id=>{
+    const so = soById(id), m = mem(so.customer), ls = r.lines.filter(l=>l.soId===id);
+    return `<div class="pdf-so"><div class="pdf-so-h"><div><b>Sales Order ${so.name}</b></div><div><span class="lbl">Deliver to:</span> <b>${esc(m.name)}</b>, ${addrLines(m).map(esc).join(', ')}</div></div>
+      <table><thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Unit Price</th><th class="num">Amount</th></tr></thead><tbody>
+      ${ls.map(l=>`<tr><td>${esc(prod(l.pid).name)}</td><td class="num">${num(l.qty)}</td><td class="num">${num(l.price)}</td><td class="num">${money(l.price*l.qty)}</td></tr>`).join('')}
+      </tbody><tfoot><tr><td colspan="3" class="num">Subtotal ${so.name}</td><td class="num">${money(ls.reduce((a,l)=>a+l.price*l.qty,0))}</td></tr></tfoot></table></div>`;
+  }).join('');
+  return `<div class="pdf"><div class="pdf-top"><div><div class="pdf-co">FTS</div><div class="pdf-muted">Furniture Trade Services<br>100 Main St, New York, NY 10001</div></div>
+      <div class="pdf-vendor"><div class="pdf-muted">Vendor</div><b>${esc(V.name)}</b></div></div>
+    <h2>${open?'Request for Quotation':'Purchase Order'} #${r.name}</h2>
+    <div class="pdf-meta"><div><span class="pdf-muted">${open?'Order Deadline':'Order Date'}</span><br>${open?dt(r.cutoff):dt(r.confirmed)}</div><div><span class="pdf-muted">Shipping</span><br>Dropship: deliver each sales order to the address shown</div></div>
+    ${groups}
+    <div class="pdf-total"><span>Total</span><b>${money(rfqTotal(r))}</b></div></div>`;
+}
+function openPoPdf(id, fromEmail=false){
+  const r = rfqById(id);
+  openModal(`${r.name}.pdf`, `<div class="pdf-wrap">${poDocHtml(r)}</div>`,
+    (fromEmail?`<button class="btn btn-primary" data-act="po-send" data-id="${r.id}">Back to email</button>`:`<button class="btn btn-primary" data-act="noop">Download</button>`) + `<button class="btn" data-act="modal-x">Close</button>`, 'lg');
+}
+function openPoEmail(id){
+  const r = rfqById(id), open = r.state==='draft', V = ven(r.vendor), n = rfqSoIds(r).length;
+  const kind = open ? 'Request for Quotation' : 'Purchase Order';
+  openModal(`Compose Email`, `<div class="mail">
+      <div class="f"><label>Recipients</label><div class="val"><span class="badge">${esc(V.name)}</span></div></div>
+      <div class="f"><label>Subject</label><div class="val">FTS Order (Ref ${r.name})</div></div>
+      <div class="mail-body">Dear ${esc(V.name)},<br><br>Here is in attachment a ${kind.toLowerCase()} <b>${r.name}</b> amounting to <b>${money(rfqTotal(r))}</b> from FTS.<br><br>
+        This order covers ${plural(n,'sales order')}. Please ship each sales order directly to its own delivery address:
+        <ul>${rfqSoIds(r).map(id=>{ const so = soById(id), m = mem(so.customer); return `<li><b>${so.name}</b>: ${esc(m.name)}, ${addrLines(m).map(esc).join(', ')}</li>`; }).join('')}</ul>
+        If you have any questions, please do not hesitate to contact us.<br><br>Best regards,</div>
+      <button class="attach" data-act="po-pdf-from-mail" data-id="${r.id}">📄 ${r.name}.pdf</button></div>`,
+    `<button class="btn btn-primary" data-act="po-mail-send">Send</button><button class="btn" data-act="modal-x">Discard</button>`);
+}
+function openReadyModal(r){
+  const re = r.reopened;
+  openModal(re?'Reconfirm purchase order?':'Ready to send?', `<p>${r.name} for ${esc(ven(r.vendor).name)}</p>
+    <dl><dt>Consolidated</dt><dd>${plural(r.lines.length,'line')}, ${plural(rfqSoIds(r).length,'sales order')}</dd>${re?`<dt>First confirmed</dt><dd>${dt(re.prevConfirmed)}</dd>`:''}</dl>
+    <div class="banner" style="margin:0">${re?'Confirming sends the updated PO to the vendor and recreates a dropship order for each member.':'Confirming sends the PO to the vendor and creates a separate dropship order for each member. You can also wait for more orders from this vendor.'}</div>`,
+    `<button class="btn btn-primary" data-act="modal-confirm" data-id="${r.id}">Confirm PO</button><button class="btn" data-act="modal-wait">${re?'Not now':'Wait for more orders'}</button>`, 'sm');
+}
+function openMatchModal(b, r){
+  const mp = mapBill(b, r);
+  const rows = mp.map(({bl,pl,why})=>{
+    const so = pl ? soById(pl.soId) : null;
+    return `<tr><td>${esc(bl.label)}<div class="small muted">${num(bl.qty)} × ${num(bl.price)}</div></td>
+      <td>${pl?`${esc(prod(pl.pid).name)}<div class="small muted">${r.name} line ${r.lines.indexOf(pl)+1}</div>`:`<span class="nomap">Not mapped</span><div class="small muted">${why}</div>`}</td>
+      <td>${so?so.name:'—'}</td><td>${pl?esc(mem(pl.member).name):'—'}</td>
+      <td class="num">${pl && Math.abs(pl.price-bl.price)>0.005?`<span class="warn-txt">PO ${num(pl.price)}</span>`:pl?'<span class="small muted">same price</span>':''}</td></tr>`;
+  }).join('');
+  openModal(`Match ${b.name||'draft bill'} with ${r.name}`,
+    `<p>Bill lines are mapped to PO lines by product and the quantity received but not yet billed. Each mapped line takes the PO line's sales order and member.</p>
+     <div class="tbl-wrap dlg-lines"><table class="tbl"><thead><tr><th>Bill line</th><th>PO line</th><th>Sales Order</th><th>Member</th><th class="num">Price check</th></tr></thead><tbody>${rows}</tbody></table></div>`,
+    `<button class="btn btn-primary" data-act="match-go" data-id="${b.id}">Match and Link</button><button class="btn" data-act="modal-x">Discard</button>`);
+}
+function openPayModal(b){
+  const res = billResidual(b);
+  openModal('Register Payment', `<div class="fld"><label for="payJ">Journal</label><input id="payJ" value="Bank" disabled></div>
+    <div class="fld"><label for="payAmt">Amount</label><input id="payAmt" type="number" min="0.01" step="0.01" max="${res}" value="${res.toFixed(2)}"></div>
+    <div class="fld"><label for="payD">Payment Date</label><input id="payD" value="${dOnly(Date.now())}" disabled></div>
+    <div class="fld"><label for="payM">Memo</label><input id="payM" value="${esc(b.name)}${b.ref?' - '+esc(b.ref):''}" disabled></div>
+    <p class="small muted">Enter less than ${money(res)} to see a partial payment. The bill's payment status and amount due update the standard Odoo way.</p>`,
+    `<button class="btn btn-primary" data-act="bill-pay-go" data-id="${b.id}">Create Payment</button><button class="btn" data-act="modal-x">Discard</button>`, 'sm');
+}
+
+/* ---------- test scenarios ---------- */
+function todayAt(h, m){
+  const now = Date.now(), d = new Date(); d.setHours(h, m, 0, 0);
+  const sod = new Date(); sod.setHours(0,0,0,0);
+  return Math.max(sod.getTime() + (h*60+m)*1000, Math.min(d.getTime(), now - (18-h)*60000));
+}
+function seedSO(member, items, t){
+  const so = {id:nid(), name:'S'+pad(S.soSeq++,5), customer:member, lines:items.map(([pid,v,q])=>({pid, vendor:v, qty:q, delivered:0, po:null})), state:'sale', date:t, poIds:[]};
+  S.sos.push(so); return so;
+}
+function seedPO(sos, v, tCreate, tConfirm){
+  const r = createRFQ(v, tCreate);
+  sos.forEach(so=>addSoLines(r, so, pendingLinesFor(so, v), tCreate));
+  if(tConfirm) confirmPO(r, true, tConfirm);
+  return r;
+}
+function loadScenario(k){
+  S = fresh();
+  let msg = 'Empty database. Create a quotation from Sales.', dest = ['sales','list',null];
+  if(k==='one' || k==='two'){
+    seedSO('m2', [['p5',null,4]], todayAt(8,50));
+    const a = seedSO('m1', [['p1','eng',2]], todayAt(9,5));
+    seedPO([a], 'eng', todayAt(9,5), todayAt(9,30));
+    msg = 'P00022 for ENGLAND was confirmed today. Create and confirm a new SO with an ENGLAND line (e.g. ACCENT CHAIR - OATMEAL, which defaults to ENGLAND) to see the prompt.';
+    if(k==='two'){
+      const b = seedSO('m2', [['p3','eng',2]], todayAt(11,0));
+      seedPO([b], 'eng', todayAt(11,0), todayAt(11,15));
+      msg = 'P00022 and P00023 for ENGLAND were both confirmed today. Confirm a new SO with an ENGLAND line (e.g. ACCENT CHAIR - OATMEAL), choose Merge, then select the PO.';
+    }
+  }
+  if(k==='draft'){
+    seedSO('m2', [['p5',null,4]], todayAt(8,50));
+    const a = seedSO('m1', [['p1','eng',2]], todayAt(9,5));
+    seedPO([a], 'eng', todayAt(9,5));
+    msg = 'Draft RFQ P00022 is open for ENGLAND. Confirm a new SO with an ENGLAND line (e.g. ACCENT CHAIR - OATMEAL): it is added to P00022 automatically.';
+  }
+  if(k==='bill'){
+    const a = seedSO('m1', [['p1','eng',2]], todayAt(8,40)), b = seedSO('m3', [['p3','eng',1]], todayAt(9,10));
+    const r = seedPO([a,b], 'eng', todayAt(8,40), todayAt(9,30));
+    S.picks.filter(p=>p.poId===r.id).forEach(p=>validatePick(p, true, todayAt(10,0)));
+    const inc = simulateIncoming(r); inc.date = todayAt(10,20);
+    msg = 'P00022 is confirmed and both dropship orders are validated. A bill from ENGLAND arrived by email: try Bill Matching or Create Bill.';
+    dest = ['purchase','form',r.id];
+  }
+  S.view = {app:dest[0], screen:dest[1], id:dest[2], filter:null};
+  document.getElementById('modal').innerHTML = '';
+  render(); window.scrollTo({top:0});
+  toast(msg,'info');
+}
+
+/* ---------- render ---------- */
+function render(){
+  const v = S.view; let html;
+  if(v.app==='sales') html = v.screen==='form' ? viewSOForm(soById(v.id)) : viewSOList();
+  else if(v.app==='purchase') html = v.screen==='form' ? viewRFQForm(rfqById(v.id))
+    : v.screen==='ds-list' ? viewPickList(rfqById(v.filter && v.filter.poId))      // Dropship opened from a PO: stays in Purchase
+    : v.screen==='ds-form' ? viewPickForm(pickById(v.id), rfqById(v.filter && v.filter.poId))
+    : viewRFQList();
+  else if(v.app==='acct') html = v.screen==='form' ? viewBillForm(billById(v.id)) : v.screen==='match' ? viewMatch(rfqById(v.id)) : viewBillList();
+  else html = v.screen==='form' ? viewPickForm(pickById(v.id)) : viewPickList();
+  document.getElementById('main').innerHTML = html;
+  document.getElementById('topbar').innerHTML = viewTopbar();
+  document.getElementById('neutral').innerHTML = viewNeutral();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e=>{
+  if(e.target.closest('td.cb, th.cb')) return;            // list checkboxes are handled by the change event
+  const el = e.target.closest('[data-act]');
+  if(M2O && !e.target.closest('.m2o, .m2o-menu')) closeM2o();
+  if(S.menu && !e.target.closest('.dropdown')){ S.menu = null; if(!el){ render(); return; } }
+  if(!el) return;
+  const a = el.dataset.act, id = el.dataset.id;
+  switch(a){
+    case 'none': break;
+    case 'po-print': openPoPdf(el.dataset.id); break;
+    case 'po-send': openPoEmail(el.dataset.id); break;
+    case 'po-pdf-from-mail': openPoPdf(el.dataset.id, true); break;
+    case 'po-mail-send': closeModal(); toast('Database neutralized for testing: email not sent.'); break;
+    case 'm2o-caret': { const i = +el.dataset.i, inp = document.querySelector(`.m2o-in[data-m2o="${i}"]`); if(M2O && M2O.i===i) closeM2o(); else inp.focus(); break; }
+    case 'm2o-pick': selectProduct(+el.dataset.i, el.dataset.pid); break;
+    case 'm2o-more': { const i = +el.dataset.i, q = M2O ? M2O.q : ''; closeM2o(); openProductSearch(i, q); break; }
+    case 'ps-pick': { const i = S.psearch.i, pid = el.dataset.pid;
+      if(prod(pid).route==='dropship') openVendorChoose(i, pid, S.psearch.q || '');
+      else { closeModal(); setLine(i, pid, null); }
+      break; }
+    case 'pv-pick': { const {i, pid} = S.psearch; closeModal(); setLine(i, pid, el.dataset.v); break; }
+    case 'pv-back': openProductSearch(S.psearch.i, S.psearch.backQ || ''); break;
+    case 'nav-sales': go('sales'); break;
+    case 'nav-purchase': go('purchase'); break;
+    case 'nav-pick': go('pick'); break;
+    case 'nav-bills': go('acct'); break;
+    case 'toggle-menu': S.menu = S.menu===el.dataset.menu ? null : el.dataset.menu; render(); break;
+    case 'search-open': if(S.menu!=='search'){ S.menu = 'search'; render(); const inp = document.querySelector('.search-wrap input'); if(inp) inp.focus(); } break;
+    case 'sf': { const k = el.dataset.f; S.soF[k] = !S.soF[k]; S.sel = []; render(); break; }
+    case 'sf-clear': { const g = el.dataset.g; if(g==='state'){ S.soF.quot = S.soF.sale = false; } else S.soF[g] = false; S.menu = null; render(); break; }
+    case 'scenario': S.menu = null; loadScenario(el.dataset.k); break;
+    case 'new-so': { discardIfEmpty(); const so = newSO(); S.view = {app:'sales',screen:'form',id:so.id,filter:null}; S.sel=[]; S.menu=null; render(); window.scrollTo({top:0}); break; }
+    case 'open-so': go('sales','form',id); break;
+    case 'open-rfq': if(!S.lock) go('purchase','form',id); break;
+    case 'open-pick': go('pick','form',id); break;
+    case 'open-bill': go('acct','form',id); break;
+    case 'clear-sel': S.sel = []; render(); break;
+    case 'so-add-line': { const so = soById(S.view.id); so.lines.push(newLine()); render(); break; }
+    case 'so-del-line': { const so = soById(S.view.id); so.lines.splice(+el.dataset.i,1); if(!so.lines.length) so.lines.push(newLine()); render(); break; }
+    case 'so-confirm': { const ok = confirmSO(soById(id)); render(); if(ok) nextDecision(); break; }
+    case 'ep-merge': { const q = S.queue[0], pos = eligiblePOs(q.vendor); if(!pos.length) nextDecision(); else if(pos.length===1) doMerge(pos[0]); else openSelectPO(pos); break; }
+    case 'ep-new': createNewFor(S.queue[0]); break;
+    case 'po-row': {
+      S.dlg.choice = id;
+      document.querySelectorAll('.vtbl tbody tr').forEach(tr=>{ const on = tr.dataset.id===id; tr.classList.toggle('on', on); tr.querySelector('input').checked = on; });
+      document.getElementById('mergeBtn').disabled = false; break;
+    }
+    case 'merge-go': if(S.dlg && S.dlg.choice) doMerge(rfqById(S.dlg.choice)); break;
+    case 'merge-back': nextDecision(); break;
+    case 'vendor-change': { const i = +el.dataset.i, l = soById(S.view.id).lines[i]; openVendorChoose(i, l.pid); break; }
+    case 'so-purchase': { const so = soById(id); so.poIds.length===1 ? go('purchase','form',so.poIds[0]) : go('purchase','list',null,{soId:id}); break; }
+    case 'so-dropship': { const ps = S.picks.filter(p=>p.soId===id); ps.length===1 ? go('pick','form',ps[0].id) : go('pick','list',null,{soId:id}); break; }
+    case 'rfq-sales': { const ids = rfqSoIds(rfqById(id)); ids.length===1 ? go('sales','form',ids[0]) : go('sales','list',null,{ids}); break; }
+    case 'rfq-dropship': go('purchase','ds-list',null,{poId:id}); break;   // Purchase context, filtered by source PO
+    case 'po-ds-open': go('purchase','ds-form',id,{poId:el.dataset.po}); break;
+    case 'rfq-confirm': openReadyModal(rfqById(id)); break;
+    case 'po-bills': { const bs = poBills(rfqById(id)); bs.length===1 ? go('acct','form',bs[0].id) : go('acct','list',null,{poId:id}); break; }
+    case 'po-match': go('acct','match',id); break;
+    case 'po-create-bill': createBillFromPO(rfqById(id)); break;
+    case 'sim-bill': { const b = simulateIncoming(rfqById(id)); render(); if(b) toast(`Bill <b>${esc(b.ref)}</b> received from ${ven(b.vendor).short} by email. It is not linked to any PO yet.`,'info'); break; }
+    case 'match-open': openMatchModal(billById(id), rfqById(S.view.id)); break;
+    case 'match-go': {
+      const b = billById(id), r = rfqById(S.view.id), mp = mapBill(b, r);
+      mp.forEach(({bl,pl})=>{ if(pl){ bl.poLineId = pl.id; bl.poId = r.id; bl.soId = pl.soId; bl.member = pl.member; } });
+      closeModal(); toast(`${b.name||'Draft bill'} ${b.ref?'('+esc(b.ref)+') ':''}linked to <b>${r.name}</b>: ${mp.filter(x=>x.pl).length} of ${plural(mp.length,'line')} mapped.`);
+      go('acct','form',b.id); break;
+    }
+    case 'bill-post': postBill(billById(id)); render(); break;
+    case 'bill-pay-open': openPayModal(billById(id)); break;
+    case 'bill-pay-go': {
+      const b = billById(id), res = billResidual(b), v = parseFloat(document.getElementById('payAmt').value);
+      if(!(v>0)){ toast('Enter an amount greater than zero.','err'); break; }
+      const amt = Math.min(res, Math.round(v*100)/100);
+      b.payments.push({amount:amt, date:Date.now()}); closeModal(); render();
+      toast(`Payment of ${money(amt)} registered. ${b.name}: ${payState(b)[0]}, amount due ${money(billResidual(b))}.`); break;
+    }
+    case 'bill-sales': { const ids = uniq(billById(id).lines.map(x=>x.soId).filter(Boolean)); ids.length===1 ? go('sales','form',ids[0]) : go('sales','list',null,{ids}); break; }
+    case 'modal-close': if(e.target===el && !S.lock){ closeModal(); render(); } break;
+    case 'modal-x': closeModal(); render(); break;
+    case 'modal-wait': closeModal(); toast('The RFQ stays in draft. New sales orders for this vendor are still added to it automatically.','info'); break;
+    case 'modal-confirm': closeModal(); confirmPO(rfqById(id)); render(); break;
+    case 'pick-validate': validatePick(pickById(id)); render(); break;
+    case 'noop': toast('This button is outside the scope of this mockup.','info'); break;
+  }
+});
+document.addEventListener('change', e=>{
+  const el = e.target;
+  if(el.matches('[data-sel]')){ const id = el.dataset.sel; S.sel = el.checked ? [...new Set([...S.sel,id])] : S.sel.filter(x=>x!==id); S.menu=null; render(); return; }
+  if(el.matches('[data-selall]')){ S.sel = el.checked ? soFiltered().map(s=>s.id) : []; S.menu=null; render(); return; }
+  if(el.name==='posel'){ S.dlg.choice = el.value; document.querySelectorAll('.vtbl tbody tr').forEach(tr=>tr.classList.toggle('on', tr.dataset.id===el.value)); document.getElementById('mergeBtn').disabled = false; return; }
+  const a = el.dataset.chg; if(!a) return;
+  if(a==='so-customer'){ soById(S.view.id).customer = el.value; }
+  if(a==='so-line-qty'){ soById(S.view.id).lines[+el.dataset.i].qty = Math.max(1, parseInt(el.value)||1); }
+  render();
+});
+document.addEventListener('focusin', e=>{
+  const inp = e.target.closest('.m2o-in'); if(!inp) return;
+  if(!M2O || M2O.i!==+inp.dataset.m2o){ closeM2o(); inp.select(); showM2o(+inp.dataset.m2o, ''); }
+});
+document.addEventListener('input', e=>{
+  if(e.target.matches('.m2o-in')) showM2o(+e.target.dataset.m2o, e.target.value);
+  if(e.target.id==='psQ'){
+    if(S.psearch.mode==='product') S.psearch.q = e.target.value;
+    const r = S.psearch.mode==='vendor' ? pvRows(S.psearch.pid, e.target.value) : psRows(e.target.value), n = r.list.length;
+    document.getElementById('psBody').innerHTML = r.body; document.getElementById('psFoot').innerHTML = r.foot;
+    document.getElementById('psPager').textContent = `${n?`1-${n}`:'0'} / ${n}`;
+  }
+});
+document.addEventListener('keydown', e=>{
+  if(!M2O || !e.target.matches('.m2o-in')) return;
+  if(e.key==='ArrowDown'){ e.preventDefault(); moveM2o(1); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); moveM2o(-1); }
+  else if(e.key==='Enter'){ e.preventDefault(); if(M2O.hl>=0) selectProduct(M2O.i, M2O.hits[M2O.hl].id); }
+  else if(e.key==='Escape'){ e.stopImmediatePropagation(); closeM2o(); e.target.blur(); }
+  else if(e.key==='Tab') closeM2o();
+}, true);
+window.addEventListener('scroll', e=>{ if(M2O && !e.target.closest?.('.m2o-menu')) closeM2o(); }, true);
+window.addEventListener('resize', ()=>{ if(M2O) closeM2o(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(document.querySelector('.backdrop') && !S.lock){ closeModal(); render(); } if(S.menu){ S.menu=null; render(); } } });
+
+render();
+</script>
+</body>
+</html>
